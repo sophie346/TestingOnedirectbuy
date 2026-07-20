@@ -16,10 +16,6 @@ on:
           - smoke
           - regression
           - all
-      workers:
-        description: "Playwright worker count"
-        required: false
-        default: "2"
 
 concurrency:
   group: playwright-${{ github.workflow }}-${{ github.ref }}
@@ -27,15 +23,18 @@ concurrency:
 
 jobs:
   test:
-    timeout-minutes: 120
+    timeout-minutes: 30
     runs-on: ubuntu-latest
     env:
       CI: "true"
+      CI_FAST: "1"
       HEADLESS: "true"
       PW_HEADLESS: "1"
-      PW_WORKERS: ${{ github.event.inputs.workers || '2' }}
+      PW_WORKERS: "4"
+      PW_RETRIES: "1"
       CI_TEST_SUITE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.suite || 'regression' }}
       TEST_ENV: ci
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
       ONEDIRECTBUY_BASE_URL: ${{ vars.ONEDIRECTBUY_BASE_URL }}
       BASE_URL: ${{ vars.BASE_URL || vars.ONEDIRECTBUY_BASE_URL }}
       ONEDIRECTBUY_BUYER_EMAIL: ${{ secrets.ONEDIRECTBUY_BUYER_EMAIL }}
@@ -45,11 +44,6 @@ jobs:
       ONEDIRECTBUY_SELLER_EMAIL: ${{ secrets.ONEDIRECTBUY_SELLER_EMAIL }}
       ONEDIRECTBUY_SELLER_PASSWORD: ${{ secrets.ONEDIRECTBUY_SELLER_PASSWORD }}
       REPORT_UPLOAD: "0"
-      REPORT_UPLOAD_URL: ${{ secrets.REPORT_UPLOAD_URL }}
-      REPORT_UPLOAD_AUTH_TOKEN: ${{ secrets.REPORT_UPLOAD_AUTH_TOKEN }}
-      REPORT_API_URL: ${{ secrets.REPORT_API_URL }}
-      API_URL: ${{ secrets.REPORT_API_URL }}
-      API_TOKEN: ${{ secrets.API_TOKEN }}
       DASHBOARD_UPLOAD: "0"
       UI_ANALYSIS: "0"
 
@@ -63,75 +57,33 @@ jobs:
           node-version: lts/*
           cache: npm
 
-      - name: Install dependencies
+      - name: Install npm dependencies
         run: npm ci
 
-      - name: Cache Playwright browsers
+      - name: Cache Playwright Chromium
         uses: actions/cache@v4
         id: playwright-cache
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+          key: pw-chromium-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
 
-      - name: Install Playwright browsers
+      - name: Install Chromium only
         if: steps.playwright-cache.outputs.cache-hit != 'true'
         run: npx playwright install --with-deps chromium
 
-      - name: Install Playwright OS deps (cache hit)
+      - name: Install Chromium OS deps (cache hit)
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
-      - name: Run tests from ci-tests.config.json
+      - name: Run Chromium tests
         run: npm run test:ci
 
-      - name: Verify reports folder
-        if: ${{ !cancelled() }}
-        run: |
-          ls -la reports/ || true
-          ls -la reports/*/summary.json || true
-          test -f reports/latest.json && echo "Latest run pointer OK" || echo "latest.json missing"
-
-      - name: Upload reports folder
+      - name: Upload reports
         if: ${{ !cancelled() }}
         uses: actions/upload-artifact@v4
         with:
           name: test-reports
-          path: |
-            reports/
-          retention-days: 30
+          path: reports/
+          retention-days: 14
           if-no-files-found: warn
-
-      - name: Upload screenshots
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-screenshots
-          path: |
-            test-results/**/*.png
-            test-results/**/screenshots/**
-            reports/**/html/**/*.png
-          retention-days: 14
-          if-no-files-found: ignore
-
-      - name: Upload videos
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-videos
-          path: |
-            test-results/**/*.webm
-            test-results/**/*.mp4
-            test-results/**/video*
-          retention-days: 14
-          if-no-files-found: ignore
-
-      - name: Upload traces
-        if: ${{ !cancelled() }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: playwright-traces
-          path: |
-            test-results/**/trace.zip
-            test-results/**/*trace*
-          retention-days: 14
-          if-no-files-found: ignore
+          compression-level: 6

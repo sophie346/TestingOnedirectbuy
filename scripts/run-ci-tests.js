@@ -64,54 +64,7 @@ function resolveTestFiles(config, suite) {
   return tests.filter((t) => t.enabled !== false).map((t) => t.file);
 }
 
-function copyIfExists(source, destination) {
-  if (!fs.existsSync(source)) {
-    return false;
-  }
-  fs.mkdirSync(path.dirname(destination), { recursive: true });
-  const stat = fs.statSync(source);
-  if (stat.isDirectory()) {
-    fs.cpSync(source, destination, { recursive: true });
-  } else {
-    fs.copyFileSync(source, destination);
-  }
-  return true;
-}
-
-function findLatestSubdir(parentDir) {
-  if (!fs.existsSync(parentDir)) {
-    return null;
-  }
-  const entries = fs
-    .readdirSync(parentDir, { withFileTypes: true })
-    .filter((entry) => entry.isDirectory())
-    .map((entry) => {
-      const fullPath = path.join(parentDir, entry.name);
-      return { name: entry.name, mtime: fs.statSync(fullPath).mtimeMs, fullPath };
-    })
-    .sort((a, b) => b.mtime - a.mtime);
-  return entries[0]?.fullPath ?? null;
-}
-
-function collectReports(runId, { suite, testFiles, exitCode, configPath }) {
-  const runDir = path.join(ROOT, "reports", runId);
-  fs.mkdirSync(runDir, { recursive: true });
-
-  const htmlSource = findLatestSubdir(path.join(ROOT, "playwright-report"));
-  const copied = {
-    html: htmlSource
-      ? copyIfExists(htmlSource, path.join(runDir, "html"))
-      : false,
-    resultsJson: copyIfExists(
-      path.join(ROOT, "test-results", "results.json"),
-      path.join(runDir, "results.json"),
-    ),
-    junitXml: copyIfExists(
-      path.join(ROOT, "test-results", "junit.xml"),
-      path.join(runDir, "junit.xml"),
-    ),
-  };
-
+function writeSummary(runDir, runId, { suite, testFiles, exitCode, configPath }) {
   let parsedResults = null;
   const resultsPath = path.join(runDir, "results.json");
   if (fs.existsSync(resultsPath)) {
@@ -122,18 +75,19 @@ function collectReports(runId, { suite, testFiles, exitCode, configPath }) {
     }
   }
 
+  const htmlExists = fs.existsSync(path.join(runDir, "html", "index.html"));
   const summary = {
     runId,
     suite,
     timestamp: new Date().toISOString(),
     exitCode,
-    config: path.relative(ROOT, configPath),
+    browser: "chromium",
+    config: path.relative(ROOT, configPath).replace(/\\/g, "/"),
     testFiles,
     reports: {
       directory: path.relative(ROOT, runDir).replace(/\\/g, "/"),
-      html: copied.html ? "html/index.html" : null,
-      resultsJson: copied.resultsJson ? "results.json" : null,
-      junitXml: copied.junitXml ? "junit.xml" : null,
+      html: htmlExists ? "html/index.html" : null,
+      resultsJson: fs.existsSync(resultsPath) ? "results.json" : null,
     },
     stats: parsedResults?.stats ?? null,
   };
@@ -144,7 +98,6 @@ function collectReports(runId, { suite, testFiles, exitCode, configPath }) {
     "utf8",
   );
 
-  fs.mkdirSync(path.join(ROOT, "reports"), { recursive: true });
   fs.writeFileSync(
     path.join(ROOT, "reports", "latest.json"),
     `${JSON.stringify(
@@ -154,6 +107,7 @@ function collectReports(runId, { suite, testFiles, exitCode, configPath }) {
         timestamp: summary.timestamp,
         suite,
         exitCode,
+        browser: "chromium",
       },
       null,
       2,
@@ -162,14 +116,11 @@ function collectReports(runId, { suite, testFiles, exitCode, configPath }) {
   );
 
   console.log(`\nReports collected in reports/${runId}/`);
-  if (copied.html) {
+  if (summary.reports.html) {
     console.log(`  HTML:  reports/${runId}/html/index.html`);
   }
-  if (copied.resultsJson) {
+  if (summary.reports.resultsJson) {
     console.log(`  JSON:  reports/${runId}/results.json`);
-  }
-  if (copied.junitXml) {
-    console.log(`  JUnit: reports/${runId}/junit.xml`);
   }
   console.log(`  Summary: reports/${runId}/summary.json`);
 }
@@ -187,6 +138,7 @@ function main() {
   }
 
   console.log(`Suite: ${suite}`);
+  console.log(`Browser: chromium`);
   console.log(`Running ${testFiles.length} test file(s):`);
   for (const file of testFiles) {
     console.log(`  - ${file}`);
@@ -195,7 +147,7 @@ function main() {
   const workers =
     process.env.PW_WORKERS !== undefined && process.env.PW_WORKERS !== ""
       ? process.env.PW_WORKERS
-      : String(config.workers ?? 2);
+      : String(config.workers ?? 4);
   const retries =
     process.env.PW_RETRIES !== undefined && process.env.PW_RETRIES !== ""
       ? process.env.PW_RETRIES
@@ -203,15 +155,28 @@ function main() {
         ? String(config.retries)
         : undefined;
 
+  const runId = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  const runDir = path.join(ROOT, "reports", runId);
+  fs.mkdirSync(path.join(runDir, "html"), { recursive: true });
+
+  // Write reports directly into reports/<runId>/ — no post-run copy.
   const env = {
     ...process.env,
     PW_WORKERS: workers,
     ...(retries !== undefined ? { PW_RETRIES: retries } : {}),
+    PW_REPORT_OUTPUT_DIR: path.join("reports", runId, "html"),
+    PW_JSON_REPORT_PATH: path.join("reports", runId, "results.json"),
+    PW_JUNIT_REPORT_PATH: path.join("reports", runId, "junit.xml"),
   };
 
-  const runId = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+  const args = [
+    "playwright",
+    "test",
+    "--project=chromium",
+    ...testFiles,
+  ];
 
-  const result = spawnSync("npx", ["playwright", "test", ...testFiles], {
+  const result = spawnSync("npx", args, {
     cwd: ROOT,
     env,
     stdio: "inherit",
@@ -219,7 +184,12 @@ function main() {
   });
 
   const exitCode = result.status ?? 1;
-  collectReports(runId, { suite, testFiles, exitCode, configPath: CONFIG_PATH });
+  writeSummary(runDir, runId, {
+    suite,
+    testFiles,
+    exitCode,
+    configPath: CONFIG_PATH,
+  });
   process.exit(exitCode);
 }
 

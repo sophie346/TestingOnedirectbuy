@@ -37,12 +37,14 @@ reporters/           # custom Playwright reporters
 
 GitHub Actions (`.github/workflows/playwright.yml`) runs on push/PR to `main`, `master`, or `develop`.
 
-**Control which specs run:** edit `ci-tests.config.json` — set `"enabled": false` to skip a file in the default `regression` suite. Suites:
+- **Browser:** Chromium only (no Firefox/WebKit)
+- **Speed:** `CI_FAST=1` — 4 workers, 1 retry, no video, traces only on retry, lean reporters
+- **Reports:** written directly to `reports/<timestamp>/` and uploaded as one artifact
+
+**Control which specs run:** edit `ci-tests.config.json` — set `"enabled": false` to skip a file in the default `regression` suite.
 
 | Suite | Command | What runs |
 |-------|---------|-----------|
 | `regression` (push default) | `npm run test:regression` | files with `enabled: true` |
 | `smoke` | `npm run test:smoke` | files listed in `suites.smoke` |
 | `all` | `npm run test:all` | every file in `tests[]` |
-
-Reports are written to `reports/<timestamp>/` (HTML, JSON, JUnit, summary). CI uploads the `reports/` folder as a workflow artifact.

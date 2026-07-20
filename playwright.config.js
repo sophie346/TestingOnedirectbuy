@@ -28,23 +28,33 @@ if (process.env.API_URL && !process.env.REPORT_API_URL) {
 }
 
 const ci = Boolean(process.env.CI);
+/** CI fast mode: shorter timeouts, no video, lean reporters (default on when CI=1). */
+const ciFast =
+  process.env.CI_FAST === "1" ||
+  process.env.CI_FAST === "true" ||
+  (ci && process.env.CI_FAST !== "0" && process.env.CI_FAST !== "false");
 const testEnv = (
   process.env.TEST_ENV || (ci ? "ci" : "local")
 ).toLowerCase();
 
 /**
  * Unique report folder per run: playwright-report/YYYY-MM-DD_HH-mm-ss
- * So each run (single file or full suite) gets its own report and nothing is overwritten.
+ * Override via PW_REPORT_OUTPUT_DIR / PW_JSON_REPORT_PATH / PW_JUNIT_REPORT_PATH
+ * (used by scripts/run-ci-tests.js to write straight into reports/).
  */
 const reportTimestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-const reportOutputDir = path.join("playwright-report", reportTimestamp);
+const reportOutputDir =
+  process.env.PW_REPORT_OUTPUT_DIR ||
+  path.join("playwright-report", reportTimestamp);
 const uiAnalysisOutputDir = path.join(
   "test-results",
   "ui-analysis",
   reportTimestamp,
 );
-const jsonReportPath = path.join("test-results", "results.json");
-const junitReportPath = path.join("test-results", "junit.xml");
+const jsonReportPath =
+  process.env.PW_JSON_REPORT_PATH || path.join("test-results", "results.json");
+const junitReportPath =
+  process.env.PW_JUNIT_REPORT_PATH || path.join("test-results", "junit.xml");
 
 /** Used by reporters/uploadReporter.js to zip and upload the HTML report after the run. */
 process.env.PW_REPORT_OUTPUT_DIR = reportOutputDir;
@@ -70,22 +80,27 @@ const headlessFlag =
 const useHeadless = headedFlag ? false : headlessFlag ? true : ci;
 
 /**
- * Configurable workers via PW_WORKERS. Default 1 (serial-safe for shared apps).
+ * Configurable workers via PW_WORKERS.
+ * Local default 1 (serial-safe). CI fast default 4.
  */
 const workers =
   process.env.PW_WORKERS !== undefined && process.env.PW_WORKERS !== ""
     ? Number(process.env.PW_WORKERS) || 1
-    : 1;
+    : ciFast
+      ? 4
+      : 1;
 
 const retries =
   process.env.PW_RETRIES !== undefined
     ? Number(process.env.PW_RETRIES) || 0
-    : ci
-      ? 2
-      : 0;
+    : ciFast
+      ? 1
+      : ci
+        ? 2
+        : 0;
 
 console.log(
-  `[config] env=${testEnv} ci=${ci} headless=${useHeadless} workers=${workers} retries=${retries}`,
+  `[config] env=${testEnv} ci=${ci} fast=${ciFast} headless=${useHeadless} workers=${workers} retries=${retries} browser=chromium`,
 );
 
 /**
@@ -95,26 +110,30 @@ export default defineConfig({
   globalSetup: "./global-setup.cjs",
   testDir: "./tests",
   outputDir: "test-results",
-  /* Maximum time one test can run for. */
-  timeout: 300000, // 5 minutes (long test with many steps)
+  /* Fail fast on CI so hung tests don't burn the whole job. */
+  timeout: ciFast ? 90_000 : 300_000,
   expect: {
-    timeout: 10_000,
+    timeout: ciFast ? 8_000 : 10_000,
   },
-  /* Run tests in files in parallel */
-  fullyParallel: false,
+  /* Parallelize independent tests on CI (serial describes stay serial). */
+  fullyParallel: ciFast,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!ci,
   /* Retry on CI only (override with PW_RETRIES) */
   retries,
   /* One browser at a time locally (override with PW_WORKERS=4). */
   workers,
-  /* Reporter: list + HTML + JSON + JUnit + optional custom reporters */
+  /* Lean reporters on CI for faster teardown / smaller artifacts. */
   reporter: [
-    ["list"],
+    [ciFast ? "line" : "list"],
     ["html", { outputFolder: reportOutputDir, open: "never" }],
     ["json", { outputFile: jsonReportPath }],
-    ["junit", { outputFile: junitReportPath }],
-    ["./reporters/devIssuesReporter.js"],
+    ...(ciFast
+      ? []
+      : [
+          ["junit", { outputFile: junitReportPath }],
+          ["./reporters/devIssuesReporter.js"],
+        ]),
     // OpenAI UI analysis — opt-in via UI_ANALYSIS=1
     ...(process.env.UI_ANALYSIS === "1" || process.env.UI_ANALYSIS === "true"
       ? [["./reporters/uiAnalysisReporter.js"]]
@@ -135,25 +154,33 @@ export default defineConfig({
 
     headless: useHeadless,
 
-    actionTimeout: 15_000,
-    navigationTimeout: 30_000,
+    actionTimeout: ciFast ? 10_000 : 15_000,
+    navigationTimeout: ciFast ? 20_000 : 30_000,
 
     /* Screenshot on failure for Playwright HTML report + debugging */
     screenshot: "only-on-failure",
 
-    /* Video on failure */
-    video: "retain-on-failure",
+    /* Video is expensive I/O — off in fast CI; local keeps on-failure. */
+    video: ciFast ? "off" : "retain-on-failure",
 
-    /* Trace on failure */
-    trace: "retain-on-failure",
+    /* Trace only when a retry happens (saves time on green runs). */
+    trace: ciFast ? "on-first-retry" : "retain-on-failure",
 
     ignoreHTTPSErrors: process.env.IGNORE_HTTPS_ERRORS === "1",
+
+    ...(ci
+      ? {
+          launchOptions: {
+            args: ["--disable-dev-shm-usage", "--no-sandbox"],
+          },
+        }
+      : {}),
   },
 
-  /* OneDirectBuy only. CI uses Playwright Chromium; local keeps Google Chrome when available. */
+  /* Chromium only — never Firefox/WebKit. CI uses bundled Chromium (not system Chrome). */
   projects: [
     {
-      name: "onedirectbuy",
+      name: "chromium",
       testDir: "./tests/OneDirectBuy",
       use: {
         ...devices["Desktop Chrome"],
