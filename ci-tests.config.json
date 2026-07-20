@@ -1,0 +1,32 @@
+{
+  "$comment": "Control which Playwright specs run in GitHub Actions. Set enabled: false to skip a file on push/PR (regression suite).",
+  "workers": 2,
+  "retries": 2,
+  "suites": {
+    "smoke": ["Login.spec.js", "Homepage.spec.js"],
+    "regression": "enabled",
+    "all": "all"
+  },
+  "tests": [
+    {
+      "file": "tests/OneDirectBuy/Login.spec.js",
+      "enabled": true,
+      "description": "Login form and buyer authentication (ODB-UC-005)"
+    },
+    {
+      "file": "tests/OneDirectBuy/Homepage.spec.js",
+      "enabled": true,
+      "description": "Homepage load and performance (ODB-UC-026, ODB-UC-506)"
+    },
+    {
+      "file": "tests/OneDirectBuy/Navigation.spec.js",
+      "enabled": true,
+      "description": "Site navigation and menus"
+    },
+    {
+      "file": "tests/OneDirectBuy/Search.spec.js",
+      "enabled": true,
+      "description": "Product search"
+    }
+  ]
+}

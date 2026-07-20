@@ -1,0 +1,65 @@
+Use Case ID	Module	Actor	Use Case	Description
+ODB-UC-047	Product Listing	Guest Buyer	Filter by seller	Buyer filters products by seller.
+ODB-UC-066	Product Detail	Guest Buyer	Seller information display	Seller name, rating, shipping source, and store link display.
+ODB-UC-077	Product Variants	Seller	Variant-level inventory	Seller manages inventory separately per variant.
+ODB-UC-081	Pricing	Seller	Update product price	Seller updates product price.
+ODB-UC-082	Pricing	Seller	Prevent negative price	System blocks invalid negative price.
+ODB-UC-083	Pricing	Seller	Add sale price	Seller adds sale price lower than regular price.
+ODB-UC-087	Product Identifiers	Seller	Add UPC/GTIN/MPN	Seller enters required product identifiers.
+ODB-UC-088	Product Identifiers	Seller	Invalid UPC validation	System rejects invalid UPC/GTIN format.
+ODB-UC-104	Fitment Data	Seller	Upload ACES file	Seller uploads ACES fitment data.
+ODB-UC-106	PIES Data	Seller	Upload PIES file	Seller uploads PIES product attribute data.
+ODB-UC-107	PIES Data	Seller	Invalid PIES file	System rejects invalid PIES file.
+ODB-UC-145	Checkout	Seller	Seller order notification	Seller receives new order notification.
+ODB-UC-174	Buyer Orders	Buyer	Contact seller from order	Buyer messages seller from order detail.
+ODB-UC-177	Multi-Seller Orders	Buyer	Place multi-seller order	Buyer checks out items from multiple sellers.
+ODB-UC-179	Multi-Seller Orders	Seller	Seller sees own sub-order	Seller sees only their own items.
+ODB-UC-180	Multi-Seller Orders	Buyer	Buyer sees combined order	Buyer sees full order grouped by seller.
+ODB-UC-182	Multi-Seller Orders	Admin	Admin views full order	Admin sees all sellers, items, payments, and statuses.
+ODB-UC-183	Seller Onboarding	Guest Seller	Start seller application	Seller starts application from Sell page.
+ODB-UC-184	Seller Onboarding	Seller	Submit seller application	Seller submits business, tax, bank, category, and contact details.
+ODB-UC-185	Seller Onboarding	Seller	Validate seller fields	System validates missing seller application fields.
+ODB-UC-186	Seller Onboarding	Seller	Upload business documents	Seller uploads W-9, license, resale certificate, or documents.
+ODB-UC-187	Seller Onboarding	Seller	Invalid document upload	System blocks invalid file type.
+ODB-UC-188	Seller Onboarding	Admin	Review seller application	Admin reviews seller details and documents.
+ODB-UC-189	Seller Onboarding	Admin	Approve seller	Admin approves seller application.
+ODB-UC-190	Seller Onboarding	Admin	Reject seller	Admin rejects seller with reason.
+ODB-UC-194	Seller Onboarding	Seller	Block pending seller selling	Pending/rejected seller cannot add products.
+ODB-UC-195	Seller Onboarding	Admin	Suspend seller	Admin suspends seller account.
+ODB-UC-196	Seller Onboarding	Admin	Reactivate seller	Admin reactivates suspended seller.
+ODB-UC-197	Seller Agreement	Seller	Accept seller agreement	Seller accepts marketplace seller agreement.
+ODB-UC-200	Seller Storefront	Buyer	View seller storefront	Buyer opens seller store page.
+ODB-UC-201	Seller Storefront	Buyer	View seller products	Buyer views all active products from seller.
+ODB-UC-203	Brand Approval	Seller	Request existing brand approval	Seller requests permission to sell existing brand.
+ODB-UC-204	Brand Approval	Seller	Request new brand creation	Seller submits new brand for review.
+ODB-UC-215	Product Catalog	Seller	Add new product	Seller submits new product for review.
+ODB-UC-219	Product Catalog	Seller	Upload product images	Seller uploads product images.
+ODB-UC-220	Product Catalog	Seller	Invalid product image	System rejects invalid image file.
+ODB-UC-221	Product Catalog	Seller	Add product specs	Seller adds product specifications.
+ODB-UC-227	Product Catalog	Seller	Resubmit rejected product	Seller corrects product and resubmits.
+ODB-UC-228	Product Catalog	Seller	Edit approved product	Seller edits approved product, direct save or reapproval based on rules.
+ODB-UC-232	Product Catalog	Seller	Bulk product upload	Seller uploads CSV product file.
+ODB-UC-233	Product Catalog	Seller	Bulk price update	Seller updates prices by file.
+ODB-UC-234	Product Catalog	Seller	Bulk inventory update	Seller updates inventory by file.
+ODB-UC-242	Catalog Export	Seller	Export seller catalog	Seller exports own catalog.
+ODB-UC-248	Attribute Master	Seller	Required attribute validation	Product cannot submit without required category attribute.
+ODB-UC-251	Inventory	Seller	Add inventory	Seller adds stock quantity.
+ODB-UC-252	Inventory	Seller	Reduce inventory	Seller reduces stock quantity.
+ODB-UC-253	Inventory	Seller	Prevent negative inventory	System blocks negative stock.
+ODB-UC-293	Returns	Seller	Approve return	Seller approves return request.
+ODB-UC-317	Reviews	Buyer	Submit seller rating	Buyer rates seller after order.
+ODB-UC-320	Reviews	Seller	Respond to review	Seller responds to buyer review.
+ODB-UC-323	Messaging	Buyer	Contact seller before purchase	Buyer sends product question.
+ODB-UC-324	Messaging	Buyer	Contact seller after order	Buyer messages seller from order.
+ODB-UC-325	Messaging	Seller	Reply to buyer	Seller replies to buyer message.
+ODB-UC-330	Notifications	System	Send seller approval notification	Seller receives approval notice.
+ODB-UC-364	Seller Management	Admin	Search seller	Admin searches sellers by name/email/status.
+ODB-UC-379	Legal Pages	Seller	View Seller Agreement	Seller agreement opens correctly.
+ODB-UC-380	Legal Pages	Seller	View Seller Fees	Seller fees page opens correctly.
+ODB-UC-381	Legal Pages	Seller	View Prohibited Items	Prohibited items page opens correctly.
+ODB-UC-387	Consent	Seller	Accept seller agreement	Seller agreement version and timestamp recorded.
+ODB-UC-396	Promotions	Buyer	Seller coupon restriction	Coupon applies only to allowed seller.
+ODB-UC-476	Security	Buyer	Block seller dashboard	Buyer cannot access seller dashboard.
+ODB-UC-478	Security	Seller	Block another seller order	Seller cannot access another seller’s orde
+ODB-UC-509	Performance	Seller	Large bulk upload	Large CSV upload completes or shows progress.
+ODB-UC-512	Error Handling	Seller	Bulk upload recovery	Failed upload can be retried without duplicates.

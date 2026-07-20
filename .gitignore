@@ -1,0 +1,13 @@
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/reports/*
+!/reports/.gitkeep
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+
+# Local secrets
+.env

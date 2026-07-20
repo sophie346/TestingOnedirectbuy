@@ -1,0 +1,45 @@
+{
+  "name": "testing-onedirectbuy",
+  "version": "1.0.0",
+  "description": "Playwright E2E automation for OneDirectBuy",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:headed": "cross-env PW_HEADED=1 playwright test --headed",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:smoke": "node scripts/run-ci-tests.js smoke",
+    "test:regression": "node scripts/run-ci-tests.js regression",
+    "test:ci": "node scripts/run-ci-tests.js",
+    "test:all": "node scripts/run-ci-tests.js all",
+    "test:cart": "playwright test Cart.spec.js",
+    "test:cart:headed": "playwright test Cart.spec.js --headed",
+    "report": "playwright show-report",
+    "show-report": "playwright show-report",
+    "upload-report": "tsx scripts/upload-report.ts",
+    "cleanup": "node scripts/cleanup-artifacts.js",
+    "cleanup:dry-run": "node scripts/cleanup-artifacts.js --dry-run",
+    "ci": "cross-env CI=1 HEADLESS=true PW_HEADLESS=1 UI_ANALYSIS=0 REPORT_UPLOAD=0 DASHBOARD_UPLOAD=0 playwright test",
+    "posttest": "node -e \"console.log('Reports: test-results/results.json, test-results/junit.xml, playwright-report/')\""
+  },
+  "keywords": [
+    "playwright",
+    "e2e",
+    "automation",
+    "onedirectbuy"
+  ],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0",
+    "@types/node": "^24.10.1",
+    "archiver": "^7.0.1",
+    "cross-env": "^7.0.3",
+    "dotenv": "^17.4.2",
+    "tsx": "^4.23.1",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
