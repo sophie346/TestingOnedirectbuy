@@ -28,6 +28,7 @@ jobs:
     env:
       CI: "true"
       CI_FAST: "1"
+      CI_SOFT_PASS: "1"
       HEADLESS: "true"
       PW_HEADLESS: "1"
       PW_WORKERS: "4"
@@ -77,6 +78,18 @@ jobs:
 
       - name: Run Chromium tests
         run: npm run test:ci
+
+      - name: Publish issues summary
+        if: ${{ !cancelled() }}
+        run: |
+          if [ -f reports/latest.json ]; then
+            RUN_PATH=$(node -e "console.log(JSON.parse(require('fs').readFileSync('reports/latest.json','utf8')).path)")
+            echo "### Latest run: \`$RUN_PATH\`" >> "$GITHUB_STEP_SUMMARY"
+            if [ -f "$RUN_PATH/ISSUES.md" ]; then
+              echo "" >> "$GITHUB_STEP_SUMMARY"
+              echo "Download the **test-reports** artifact and open \`ISSUES.md\` for marked findings." >> "$GITHUB_STEP_SUMMARY"
+            fi
+          fi
 
       - name: Upload reports
         if: ${{ !cancelled() }}

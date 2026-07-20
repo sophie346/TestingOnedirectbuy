@@ -39,7 +39,9 @@ GitHub Actions (`.github/workflows/playwright.yml`) runs on push/PR to `main`, `
 
 - **Browser:** Chromium only (no Firefox/WebKit)
 - **Speed:** `CI_FAST=1` — 4 workers, 1 retry, no video, traces only on retry, lean reporters
-- **Reports:** written directly to `reports/<timestamp>/` and uploaded as one artifact
+- **Soft pass:** `CI_SOFT_PASS=1` — UI mismatches are recorded in `ISSUES.md` with markers (`[MISSING-ELEMENT]`, `[STRICT-MODE]`, …); the Actions check stays **green**
+- **Reports:** `reports/<timestamp>/` (HTML + `ISSUES.md` + summary) uploaded as one artifact
+- Set `CI_SOFT_PASS=0` if you want hard failures to fail the job
 
 **Control which specs run:** edit `ci-tests.config.json` — set `"enabled": false` to skip a file in the default `regression` suite.
 

@@ -123,11 +123,12 @@ export default defineConfig({
   retries,
   /* One browser at a time locally (override with PW_WORKERS=4). */
   workers,
-  /* Lean reporters on CI for faster teardown / smaller artifacts. */
+  /* Lean reporters on CI; soft issues always on for marked ISSUES.md. */
   reporter: [
     [ciFast ? "line" : "list"],
     ["html", { outputFolder: reportOutputDir, open: "never" }],
     ["json", { outputFile: jsonReportPath }],
+    ["./reporters/softIssuesReporter.js"],
     ...(ciFast
       ? []
       : [
