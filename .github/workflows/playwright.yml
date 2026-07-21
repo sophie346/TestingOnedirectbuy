@@ -23,7 +23,8 @@ concurrency:
 
 jobs:
   test:
-    timeout-minutes: 30
+    # Buyer purchase journey alone can take ~6–8 min; full regression needs headroom.
+    timeout-minutes: 90
     runs-on: ubuntu-latest
     env:
       CI: "true"
@@ -31,19 +32,33 @@ jobs:
       CI_SOFT_PASS: "1"
       HEADLESS: "true"
       PW_HEADLESS: "1"
-      PW_WORKERS: "4"
+      # Journey is heavy; keep CI workers modest to avoid flaky cart/checkout races.
+      PW_WORKERS: "2"
       PW_RETRIES: "1"
       CI_TEST_SUITE: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.suite || 'regression' }}
       TEST_ENV: ci
       PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
-      ONEDIRECTBUY_BASE_URL: ${{ vars.ONEDIRECTBUY_BASE_URL }}
-      BASE_URL: ${{ vars.BASE_URL || vars.ONEDIRECTBUY_BASE_URL }}
+
+      # Site URL (optional repo Variable; defaults in code to https://onedirectbuy.com)
+      ONEDIRECTBUY_BASE_URL: ${{ vars.ONEDIRECTBUY_BASE_URL || 'https://onedirectbuy.com' }}
+      BASE_URL: ${{ vars.BASE_URL || vars.ONEDIRECTBUY_BASE_URL || 'https://onedirectbuy.com' }}
+
+      # Required secrets — set in GitHub → Settings → Secrets and variables → Actions
       ONEDIRECTBUY_BUYER_EMAIL: ${{ secrets.ONEDIRECTBUY_BUYER_EMAIL }}
       ONEDIRECTBUY_BUYER_PASSWORD: ${{ secrets.ONEDIRECTBUY_BUYER_PASSWORD }}
       ONEDIRECTBUY_ADMIN_EMAIL: ${{ secrets.ONEDIRECTBUY_ADMIN_EMAIL }}
       ONEDIRECTBUY_ADMIN_PASSWORD: ${{ secrets.ONEDIRECTBUY_ADMIN_PASSWORD }}
       ONEDIRECTBUY_SELLER_EMAIL: ${{ secrets.ONEDIRECTBUY_SELLER_EMAIL }}
       ONEDIRECTBUY_SELLER_PASSWORD: ${{ secrets.ONEDIRECTBUY_SELLER_PASSWORD }}
+      ONEDIRECTBUY_TEST_COUPON: ${{ secrets.ONEDIRECTBUY_TEST_COUPON }}
+
+      # Public Stripe sandbox test card (https://stripe.com/docs/testing) — safe as env, not secret
+      ONEDIRECTBUY_ATC_KEYWORD: ${{ vars.ONEDIRECTBUY_ATC_KEYWORD || 'filter' }}
+      ONEDIRECTBUY_STRIPE_TEST_CARD: ${{ vars.ONEDIRECTBUY_STRIPE_TEST_CARD || '4242424242424242' }}
+      ONEDIRECTBUY_STRIPE_TEST_EXP: ${{ vars.ONEDIRECTBUY_STRIPE_TEST_EXP || '12 / 34' }}
+      ONEDIRECTBUY_STRIPE_TEST_CVC: ${{ vars.ONEDIRECTBUY_STRIPE_TEST_CVC || '123' }}
+      ONEDIRECTBUY_STRIPE_TEST_ZIP: ${{ vars.ONEDIRECTBUY_STRIPE_TEST_ZIP || '34746' }}
+
       REPORT_UPLOAD: "0"
       DASHBOARD_UPLOAD: "0"
       UI_ANALYSIS: "0"
@@ -76,6 +91,18 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
+      - name: Verify required buyer credentials
+        run: |
+          if [ -z "$ONEDIRECTBUY_BUYER_EMAIL" ] || [ -z "$ONEDIRECTBUY_BUYER_PASSWORD" ]; then
+            echo "::error::Missing ONEDIRECTBUY_BUYER_EMAIL / ONEDIRECTBUY_BUYER_PASSWORD secrets."
+            echo "Add them under Settings → Secrets and variables → Actions."
+            exit 1
+          fi
+          echo "Buyer credentials present (email length ${#ONEDIRECTBUY_BUYER_EMAIL})."
+          echo "Stripe sandbox card configured: ${ONEDIRECTBUY_STRIPE_TEST_CARD:0:4}…"
+          echo "ATC keyword: $ONEDIRECTBUY_ATC_KEYWORD"
+          echo "Suite: $CI_TEST_SUITE"
+
       - name: Run Chromium tests
         run: npm run test:ci
 
@@ -87,7 +114,15 @@ jobs:
             echo "### Latest run: \`$RUN_PATH\`" >> "$GITHUB_STEP_SUMMARY"
             if [ -f "$RUN_PATH/ISSUES.md" ]; then
               echo "" >> "$GITHUB_STEP_SUMMARY"
-              echo "Download the **test-reports** artifact and open \`ISSUES.md\` for marked findings." >> "$GITHUB_STEP_SUMMARY"
+              echo "Download the **test-reports** artifact and open \`ISSUES.md\` / \`ISSUES.json\` (use \`productIssues\` for developers)." >> "$GITHUB_STEP_SUMMARY"
+            fi
+            if [ -f "$RUN_PATH/ISSUES.json" ]; then
+              node -e "
+                const j=JSON.parse(require('fs').readFileSync(process.argv[1],'utf8'));
+                const m=j.meta||{};
+                console.log('Issues total:', m.issueCount ?? (j.issues||[]).length);
+                console.log('Product issues:', m.productIssueCount ?? 'n/a');
+              " "$RUN_PATH/ISSUES.json" >> "$GITHUB_STEP_SUMMARY" || true
             fi
           fi
 
@@ -96,7 +131,10 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: test-reports
-          path: reports/
+          path: |
+            reports/
+            playwright-report/
+            test-results/dev-issues/
           retention-days: 14
           if-no-files-found: warn
           compression-level: 6

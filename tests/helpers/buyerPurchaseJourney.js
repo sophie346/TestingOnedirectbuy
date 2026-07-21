@@ -393,7 +393,7 @@ async function fillStripeSandboxCard(page) {
     process.env.ONEDIRECTBUY_STRIPE_TEST_CARD || "4242424242424242";
   const cardExp = process.env.ONEDIRECTBUY_STRIPE_TEST_EXP || "12 / 34";
   const cardCvc = process.env.ONEDIRECTBUY_STRIPE_TEST_CVC || "123";
-  const cardZip = process.env.ONEDIRECTBUY_STRIPE_TEST_ZIP || "60601";
+  const cardZip = process.env.ONEDIRECTBUY_STRIPE_TEST_ZIP || "34746";
 
   // Ensure Stripe payment method is selected.
   const stripeRadio = page
