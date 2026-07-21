@@ -91,15 +91,15 @@ jobs:
         if: steps.playwright-cache.outputs.cache-hit == 'true'
         run: npx playwright install-deps chromium
 
-      - name: Verify required buyer credentials
+      - name: Check optional buyer credentials
         run: |
           if [ -z "$ONEDIRECTBUY_BUYER_EMAIL" ] || [ -z "$ONEDIRECTBUY_BUYER_PASSWORD" ]; then
-            echo "::error::Missing ONEDIRECTBUY_BUYER_EMAIL / ONEDIRECTBUY_BUYER_PASSWORD secrets."
-            echo "Add them under Settings → Secrets and variables → Actions."
-            exit 1
+            echo "::notice::Buyer secrets not set — buyer-auth / purchase journey specs are disabled in ci-tests.config.json."
+            echo "Add ONEDIRECTBUY_BUYER_EMAIL / ONEDIRECTBUY_BUYER_PASSWORD later, then re-enable those specs."
+          else
+            echo "Buyer credentials present (email length ${#ONEDIRECTBUY_BUYER_EMAIL})."
           fi
-          echo "Buyer credentials present (email length ${#ONEDIRECTBUY_BUYER_EMAIL})."
-          echo "Stripe sandbox card configured: ${ONEDIRECTBUY_STRIPE_TEST_CARD:0:4}…"
+          echo "Stripe sandbox card: ${ONEDIRECTBUY_STRIPE_TEST_CARD:0:4}…"
           echo "ATC keyword: $ONEDIRECTBUY_ATC_KEYWORD"
           echo "Suite: $CI_TEST_SUITE"
 

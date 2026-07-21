@@ -1,22 +1,22 @@
 {
-  "$comment": "Control which Playwright specs run in GitHub Actions (Chromium only). Set enabled: false to skip.",
+  "$comment": "Control which Playwright specs run in GitHub Actions (Chromium only). Set enabled: false to skip. Buyer-auth / purchase journey disabled until ONEDIRECTBUY_BUYER_* secrets are added.",
   "workers": 4,
   "retries": 1,
   "suites": {
-    "smoke": ["BuyerPurchaseJourney.spec.js", "Login.spec.js", "Homepage.spec.js"],
+    "smoke": ["Login.spec.js", "Homepage.spec.js"],
     "regression": "enabled",
     "all": "all"
   },
   "tests": [
     {
       "file": "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js",
-      "enabled": true,
-      "description": "Gated journey: login → cart → checkout → place order"
+      "enabled": false,
+      "description": "Gated journey: login → cart → checkout → place order (needs buyer secrets — re-enable later)"
     },
     {
       "file": "tests/OneDirectBuy/Login.spec.js",
       "enabled": true,
-      "description": "Login — Welcome back form, invalid sign-in, credentials"
+      "description": "Login — Welcome back form, invalid sign-in (credential login skips if no secrets)"
     },
     {
       "file": "tests/OneDirectBuy/Homepage.spec.js",
@@ -60,8 +60,8 @@
     },
     {
       "file": "tests/OneDirectBuy/BuyerAccountAuthenticated.spec.js",
-      "enabled": true,
-      "description": "Authenticated buyer account (needs buyer credentials)"
+      "enabled": false,
+      "description": "Authenticated buyer account (needs buyer credentials — re-enable later)"
     },
     {
       "file": "tests/OneDirectBuy/Checkout.spec.js",
@@ -120,8 +120,8 @@
     },
     {
       "file": "tests/OneDirectBuy/AdminBackend.spec.js",
-      "enabled": true,
-      "description": "Admin login storefront checks (needs admin/buyer credentials)"
+      "enabled": false,
+      "description": "Admin login storefront checks (needs admin/buyer credentials — re-enable later)"
     },
     {
       "file": "tests/OneDirectBuy/ResponsiveAccessibility.spec.js",
@@ -130,8 +130,8 @@
     },
     {
       "file": "tests/OneDirectBuy/BuyerAddress.spec.js",
-      "enabled": true,
-      "description": "Address book guest gate + CRUD (needs buyer credentials)"
+      "enabled": false,
+      "description": "Address book guest gate + CRUD (needs buyer credentials — re-enable later)"
     }
   ]
 }

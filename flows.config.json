@@ -41,13 +41,24 @@
     },
     {
       "id": 6,
-      "name": "Auth (Login & Buyer Account)",
+      "name": "Auth (Login & Buyer Account) — guest/public only until buyer secrets",
       "enabled": true,
       "tests": [
         "tests/OneDirectBuy/Login.spec.js",
-        "tests/OneDirectBuy/BuyerAccount.spec.js",
-        "tests/OneDirectBuy/BuyerAccountAuthenticated.spec.js"
+        "tests/OneDirectBuy/BuyerAccount.spec.js"
       ]
+    },
+    {
+      "id": 6.1,
+      "name": "Buyer authenticated account (needs ONEDIRECTBUY_BUYER_* — off for now)",
+      "enabled": false,
+      "tests": ["tests/OneDirectBuy/BuyerAccountAuthenticated.spec.js"]
+    },
+    {
+      "id": 6.2,
+      "name": "Buyer purchase journey (needs buyer + Stripe — off for now)",
+      "enabled": false,
+      "tests": ["tests/OneDirectBuy/BuyerPurchaseJourney.spec.js"]
     },
     {
       "id": 7,
@@ -83,9 +94,14 @@
         "tests/OneDirectBuy/SellerPromotions.spec.js",
         "tests/OneDirectBuy/SellerAdminManagement.spec.js",
         "tests/OneDirectBuy/SellerCatalogBackend.spec.js",
-        "tests/OneDirectBuy/SellerCsvCoverage.spec.js",
-        "tests/OneDirectBuy/AdminBackend.spec.js"
+        "tests/OneDirectBuy/SellerCsvCoverage.spec.js"
       ]
+    },
+    {
+      "id": 10.1,
+      "name": "Admin backend login (needs admin/buyer secrets — off for now)",
+      "enabled": false,
+      "tests": ["tests/OneDirectBuy/AdminBackend.spec.js"]
     },
     {
       "id": 11,
@@ -95,8 +111,8 @@
     },
     {
       "id": 12,
-      "name": "Buyer Address Book",
-      "enabled": true,
+      "name": "Buyer Address Book (needs buyer secrets — off for now)",
+      "enabled": false,
       "tests": ["tests/OneDirectBuy/BuyerAddress.spec.js"]
     }
   ]
