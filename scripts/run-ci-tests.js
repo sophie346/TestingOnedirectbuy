@@ -1,8 +1,13 @@
 /**
- * Run Playwright tests selected by ci-tests.config.json and collect reports under reports/.
+ * Run Playwright tests selected by a config file and collect reports under reports/.
+ *
+ * Configs:
+ *   flows.config.json     — local `npm test` (toggle flows by id/name)
+ *   ci-tests.config.json  — GitHub Actions `npm run test:ci` (toggle per file)
  *
  * Usage:
  *   node scripts/run-ci-tests.js [suite]
+ *   CI_TESTS_CONFIG=flows.config.json node scripts/run-ci-tests.js
  *   CI_TEST_SUITE=smoke node scripts/run-ci-tests.js
  *
  * Soft pass (CI green): set CI_SOFT_PASS=1 (default when CI=1).
@@ -35,7 +40,71 @@ function matchesSmokeEntry(file, entry) {
   );
 }
 
+/** Deduplicate while preserving order. */
+function uniqueFiles(files) {
+  const seen = new Set();
+  const out = [];
+  for (const file of files) {
+    const key = file.replace(/\\/g, "/");
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(key);
+  }
+  return out;
+}
+
+/**
+ * flows.config.json — select by enabled flows (or all / single flow id).
+ * Suite examples: regression | all | flow:3 | flow:Cart
+ */
+function resolveFlowTestFiles(config, suite) {
+  const flows = config.flows || [];
+  const suiteKey = (
+    suite ||
+    process.env.CI_TEST_SUITE ||
+    "regression"
+  ).toLowerCase();
+
+  let selected = flows;
+
+  if (suiteKey === "all") {
+    selected = flows;
+  } else if (suiteKey.startsWith("flow:")) {
+    const token = suite.slice(5).trim();
+    const byId = Number(token);
+    selected = flows.filter((f) => {
+      if (Number.isFinite(byId) && !Number.isNaN(byId)) {
+        return f.id === byId;
+      }
+      return (
+        String(f.id) === token ||
+        String(f.name || "")
+          .toLowerCase()
+          .includes(token.toLowerCase())
+      );
+    });
+    if (selected.length === 0) {
+      console.error(
+        `No flow matched "${token}". Use flow:<id> or flow:<name substring>.`,
+      );
+      process.exit(1);
+    }
+  } else {
+    // regression / default — only enabled flows
+    selected = flows.filter((f) => f.enabled !== false);
+  }
+
+  const files = selected.flatMap((f) => f.tests || []);
+  return { testFiles: uniqueFiles(files), selectedFlows: selected };
+}
+
 function resolveTestFiles(config, suite) {
+  // Local flows control file
+  if (Array.isArray(config.flows) && config.flows.length > 0) {
+    const { testFiles, selectedFlows } = resolveFlowTestFiles(config, suite);
+    return { testFiles, selectedFlows };
+  }
+
   const tests = config.tests || [];
   const suiteKey = (
     suite ||
@@ -44,7 +113,7 @@ function resolveTestFiles(config, suite) {
   ).toLowerCase();
 
   if (suiteKey === "all") {
-    return tests.map((t) => t.file);
+    return { testFiles: tests.map((t) => t.file), selectedFlows: null };
   }
 
   if (suiteKey === "smoke") {
@@ -53,12 +122,20 @@ function resolveTestFiles(config, suite) {
       console.error('Suite "smoke" requires suites.smoke in ci-tests.config.json');
       process.exit(1);
     }
-    return tests
-      .filter((t) => smokeEntries.some((entry) => matchesSmokeEntry(t.file, entry)))
-      .map((t) => t.file);
+    return {
+      testFiles: tests
+        .filter((t) =>
+          smokeEntries.some((entry) => matchesSmokeEntry(t.file, entry)),
+        )
+        .map((t) => t.file),
+      selectedFlows: null,
+    };
   }
 
-  return tests.filter((t) => t.enabled !== false).map((t) => t.file);
+  return {
+    testFiles: tests.filter((t) => t.enabled !== false).map((t) => t.file),
+    selectedFlows: null,
+  };
 }
 
 function isSoftPassEnabled() {
@@ -201,7 +278,7 @@ function writeSummary(runDir, runId, { suite, testFiles, exitCode, softPass, con
 function main() {
   const suite = process.argv[2] || process.env.CI_TEST_SUITE || "regression";
   const config = loadConfig();
-  const testFiles = resolveTestFiles(config, suite);
+  const { testFiles, selectedFlows } = resolveTestFiles(config, suite);
   const softPass = isSoftPassEnabled();
 
   if (testFiles.length === 0) {
@@ -211,9 +288,17 @@ function main() {
     process.exit(1);
   }
 
+  console.log(`Config: ${path.relative(ROOT, CONFIG_PATH).replace(/\\/g, "/")}`);
   console.log(`Suite: ${suite}`);
   console.log(`Browser: chromium`);
   console.log(`Soft pass (CI green on UI issues): ${softPass ? "ON" : "OFF"}`);
+  if (selectedFlows && selectedFlows.length > 0) {
+    console.log(`Flows (${selectedFlows.length}):`);
+    for (const flow of selectedFlows) {
+      const flag = flow.enabled === false ? "off" : "on";
+      console.log(`  - Flow ${flow.id}: ${flow.name} [${flag}]`);
+    }
+  }
   console.log(`Running ${testFiles.length} test file(s):`);
   for (const file of testFiles) {
     console.log(`  - ${file}`);
@@ -245,6 +330,14 @@ function main() {
   };
 
   const args = ["playwright", "test", "--project=chromium", ...testFiles];
+  if (
+    process.env.PW_HEADED === "1" ||
+    process.env.PW_HEADED === "true" ||
+    process.env.HEADLESS === "false" ||
+    process.env.PW_HEADLESS === "0"
+  ) {
+    args.push("--headed");
+  }
 
   const result = spawnSync("npx", args, {
     cwd: ROOT,

@@ -1,63 +1,78 @@
 import { expect } from "@playwright/test";
 import {
   gotoOneDirectBuy,
-  waitForShopProducts,
   openFirstProductFromShop,
+  openKnownProductDetail,
 } from "./oneDirectBuyNav.js";
 
 /** Open the public seller onboarding landing page. */
 export async function openBecomeVendorPage(page) {
   await gotoOneDirectBuy(page, "/vendor/become-a-vendor");
   await expect(
-    page.getByText(/sell|vendor|shopper|marketplace/i).first()
+    page.getByRole("heading", { name: /^Sell on OneDirect Buy$/i }),
   ).toBeVisible({ timeout: 30_000 });
 }
 
-/** Open the marketplace store directory. */
+/** Open the marketplace store directory and wait for stores to load. */
 export async function openStoresPage(page) {
   await gotoOneDirectBuy(page, "/stores");
   await expect(
-    page
-      .getByPlaceholder(/Search vendor/i)
-      .or(page.locator(".ps-store-list"))
-      .or(page.getByRole("heading", { name: /Store list|Stores/i }))
-      .first()
+    page.getByRole("heading", { name: /^Store list$/i }),
   ).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByPlaceholder(/Search vendor/i)).toBeVisible();
+  await expect(page.getByText(/^Loading\.\.\.$/i))
+    .toBeHidden({ timeout: 60_000 })
+    .catch(() => {});
+  await expect(
+    page
+      .locator('a[href*="/store/"]')
+      .or(page.getByRole("link", { name: /Visit Store/i }))
+      .first(),
+  ).toBeVisible({ timeout: 60_000 });
 }
 
-/** Click the primary Start Selling CTA on the vendor landing page. */
+/** Click a primary Start Selling / Apply CTA → seller application. */
 export async function clickStartSelling(page) {
-  const startSelling = page.getByRole("link", { name: /Start Selling/i });
+  const startSelling = page
+    .getByRole("link", { name: /^Start Selling Today$/i })
+    .or(page.getByRole("link", { name: /^Apply Now$/i }))
+    .or(page.getByRole("link", { name: /Start seller application/i }))
+    .or(page.getByRole("link", { name: /Start Selling/i }));
   await expect(startSelling.first()).toBeVisible({ timeout: 15_000 });
-  await startSelling.first().click();
+  await Promise.all([
+    page.waitForURL(/\/vendor\/seller-application/, { timeout: 20_000 }),
+    startSelling.first().click(),
+  ]);
 }
 
-/** Resolve store-list route (legacy link) to an active stores page. */
+/** Resolve store-list route to the active /stores directory. */
 export async function openVendorStoreList(page) {
   await gotoOneDirectBuy(page, "/vendor/store-list");
-  if (page.url().includes("/vendor/store-list")) {
-    const hasStoresContent = await page
-      .getByText(/store list|stores|seller|404|not found/i)
-      .first()
-      .isVisible({ timeout: 10_000 })
-      .catch(() => false);
-    if (!hasStoresContent) {
-      await openStoresPage(page);
-    }
+  if (/store-list|404|not found/i.test(page.url() + (await page.title()))) {
+    await openStoresPage(page);
+    return;
+  }
+  const hasStores = await page
+    .getByRole("heading", { name: /^Store list$/i })
+    .isVisible({ timeout: 5_000 })
+    .catch(() => false);
+  if (!hasStores) {
+    await openStoresPage(page);
   }
 }
 
 /** Open first store detail page when store cards exist. */
 export async function openFirstStoreDetail(page) {
-  await gotoOneDirectBuy(page, "/stores");
+  await openStoresPage(page);
   const storeLink = page.locator('a[href*="/store/"]').first();
-  const hasStore = await storeLink.isVisible({ timeout: 30_000 }).catch(() => false);
-  if (hasStore) {
-    await storeLink.click();
-    await page.waitForURL(/\/store\//, { timeout: 20_000 });
-    return;
-  }
-  await gotoOneDirectBuy(page, "/store/demo-store");
+  await expect(storeLink).toBeVisible({ timeout: 30_000 });
+  await Promise.all([
+    page.waitForURL(/\/store\//, { timeout: 20_000 }),
+    storeLink.click(),
+  ]);
+  await expect(page.getByText(/Loading store/i))
+    .toBeHidden({ timeout: 45_000 })
+    .catch(() => {});
 }
 
 /** Search stores using the vendor search input on /stores. */
@@ -69,10 +84,23 @@ export async function searchStores(page, keyword) {
   await searchInput.press("Enter");
 }
 
-/** Assert product detail page loaded (seller info when present on storefront). */
+/** Assert product detail shows Sold by / seller info. */
 export async function expectProductSellerInfo(page) {
-  await openFirstProductFromShop(page);
+  await openKnownProductDetail(page, "bearing").catch(async () => {
+    await openFirstProductFromShop(page);
+  });
+  await expect(page.getByRole("heading", { level: 1 }).first()).toBeVisible({
+    timeout: 20_000,
+  });
+  await expect(page.getByText(/Sold by\s*:/i).first()).toBeVisible({
+    timeout: 15_000,
+  });
+}
+
+/** Open seller application form. */
+export async function openSellerApplication(page) {
+  await gotoOneDirectBuy(page, "/vendor/seller-application");
   await expect(
-    page.locator("h1, .ps-product__title, [role='alert']").first()
-  ).toBeVisible({ timeout: 20_000 });
+    page.getByRole("heading", { name: /Apply to sell on OneDirect Buy/i }),
+  ).toBeVisible({ timeout: 30_000 });
 }

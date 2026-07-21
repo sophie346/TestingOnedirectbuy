@@ -139,10 +139,17 @@ class SoftIssuesReporter {
     );
     const evidence = (result.error?.message || result.status || "").slice(0, 800);
     let marker = "[ASSERTION]";
-    if (/Executable doesn't exist|browserType\.launch/i.test(evidence)) {
+    let category = "product";
+    if (
+      /Executable doesn't exist|browserType\.launch|ERR_NAME_NOT_RESOLVED|ERR_CONNECTION|net::ERR_|chrome-error:\/\//i.test(
+        evidence,
+      )
+    ) {
       marker = "[INFRA]";
+      category = "infra";
     } else if (/strict mode violation/i.test(evidence)) {
       marker = "[STRICT-MODE]";
+      category = "automation";
     } else if (/TimeoutError|Timeout \d+ms exceeded/i.test(evidence)) {
       marker = "[TIMEOUT]";
     } else if (/waiting for/i.test(evidence)) {
@@ -153,7 +160,8 @@ class SoftIssuesReporter {
       marker,
       id: "hard-fail",
       title: `Hard test failure: ${test.title}`,
-      severity: "critical",
+      severity: category === "infra" ? "minor" : "critical",
+      category,
       source: "test-failure",
       testFile: path.relative(process.cwd(), test.location.file).replace(/\\/g, "/"),
       testTitle: test.title,
@@ -163,7 +171,7 @@ class SoftIssuesReporter {
       evidence,
       suggestion:
         marker === "[INFRA]"
-          ? "Infrastructure/browser install problem — ensure `npx playwright install chromium` ran in CI."
+          ? "Infrastructure/network/browser problem — not a product UI bug. Re-run when the site is reachable (or install browsers)."
           : "This was a hard failure (not wrapped in soft()). Fix the assertion or wrap it with soft() if it should be advisory only.",
       capturedAt: new Date().toISOString(),
     });
@@ -248,11 +256,25 @@ class SoftIssuesReporter {
     await fs.mkdir(latestDir, { recursive: true });
 
     await fs.writeFile(mdPath, md, "utf8");
-    await fs.writeFile(jsonPath, JSON.stringify({ meta, issues: unique }, null, 2), "utf8");
+    const productIssues = unique.filter(
+      (i) => (i.category || "product") === "product",
+    );
+    const payload = {
+      meta: {
+        ...meta,
+        issueCount: unique.length,
+        productIssueCount: productIssues.length,
+        infraOrBlockedCount: unique.length - productIssues.length,
+      },
+      issues: unique,
+      /** Issues worth sending to product developers (excludes infra/blocked). */
+      productIssues,
+    };
+    await fs.writeFile(jsonPath, JSON.stringify(payload, null, 2), "utf8");
     await fs.writeFile(path.join(latestDir, "LATEST_ISSUES.md"), md, "utf8");
     await fs.writeFile(
       path.join(latestDir, "LATEST_ISSUES.json"),
-      JSON.stringify({ meta, issues: unique }, null, 2),
+      JSON.stringify(payload, null, 2),
       "utf8",
     );
 
@@ -263,7 +285,9 @@ class SoftIssuesReporter {
     console.log(`\n[softIssuesReporter] Issues report written:`);
     console.log(`  - ${mdPath}`);
     console.log(`  - ${jsonPath}`);
-    console.log(`  - Issues: ${unique.length}`);
+    console.log(
+      `  - Issues: ${unique.length} (product: ${productIssues.length}, infra/blocked: ${unique.length - productIssues.length})`,
+    );
     if (unique.length) {
       console.log(`  Markers:`);
       const counts = {};

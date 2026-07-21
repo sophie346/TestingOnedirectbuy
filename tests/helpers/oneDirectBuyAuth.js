@@ -52,20 +52,20 @@ export async function fillInputField(locator, value) {
 export async function fillLoginForm(page, email, password) {
   await dismissCookieBanner(page);
   await expect(
-    page.getByRole("heading", { name: /Log In Your Account/i })
+    page.getByRole("heading", { name: /Welcome back/i }),
   ).toBeVisible({ timeout: 30_000 });
 
   const emailInput = page
-    .locator("#sign-in input[type='text']")
-    .or(page.getByPlaceholder("Username or email address"))
-    .or(page.locator(".ps-form--account input.ant-input[type='text']"))
+    .getByRole("textbox", { name: /^Email address$/i })
+    .or(page.getByPlaceholder("you@example.com"))
+    .or(page.locator("#sign-in input[type='text']"))
     .first();
 
   const passwordInput = page
-    .locator("#sign-in input[type='password']")
-    .or(page.getByPlaceholder("Password..."))
-    .or(page.getByRole("textbox", { name: /Password/i }))
-    .or(page.locator(".ps-form--account input[type='password']"))
+    .getByPlaceholder("Enter your password")
+    .or(page.getByRole("textbox", { name: /^Password$/i }))
+    .or(page.locator("#sign-in input[type='password']"))
+    .or(page.locator("input[type='password']"))
     .first();
 
   await fillInputField(emailInput, email);
@@ -75,13 +75,48 @@ export async function fillLoginForm(page, email, password) {
 /** Fill the OneDirectBuy registration form. */
 export async function fillRegisterForm(page, { name, email, password }) {
   await dismissCookieBanner(page);
-  await fillInputField(page.getByPlaceholder("Your name"), name);
-  await fillInputField(page.getByPlaceholder("Email address"), email);
+  await expect(
+    page.getByRole("heading", { name: /Create your account/i }),
+  ).toBeVisible({ timeout: 30_000 });
+
   await fillInputField(
-    page.getByPlaceholder("Password", { exact: true }),
-    password
+    page
+      .getByRole("textbox", { name: /^Full name$/i })
+      .or(page.getByPlaceholder("Your name"))
+      .first(),
+    name,
   );
-  await fillInputField(page.getByPlaceholder("Re-enter password"), password);
+  await fillInputField(
+    page
+      .getByRole("textbox", { name: /^Email address$/i })
+      .or(page.getByPlaceholder("you@example.com"))
+      .first(),
+    email,
+  );
+  await fillInputField(
+    page
+      .getByPlaceholder("Create a password")
+      .or(page.locator("input[type='password']").first())
+      .first(),
+    password,
+  );
+  await fillInputField(
+    page
+      .getByRole("textbox", { name: /^Confirm password$/i })
+      .or(page.getByPlaceholder("Re-enter password"))
+      .or(page.locator("input[type='password']").nth(1))
+      .first(),
+    password,
+  );
+}
+
+/** Account dashboard region (avoids AI chat / header false matches). */
+export function accountDashboard(page) {
+  return page
+    .locator(
+      ".ps-section--account, .ps-page--account, .ps-widget--account-dashboard, main .ps-section",
+    )
+    .first();
 }
 
 /** Assert the session is authenticated. */
@@ -97,9 +132,25 @@ export async function expectLoggedIn(page) {
     await gotoOneDirectBuy(page, "/account/my-account");
   }
 
+  await expect(page).not.toHaveURL(/\/account\/login$/, { timeout: 15_000 });
+
+  // Site may still show header Login while account sidebar is authenticated.
+  const dash = accountDashboard(page);
   await expect(
-    page.getByText(/account dashboard|Hello|recent orders/i).first()
+    dash
+      .getByText(/^Hello\b/i)
+      .or(dash.getByText(/account dashboard/i))
+      .or(dash.getByRole("heading", { name: /Hello|Dashboard|My Account/i }))
+      .or(page.getByRole("heading", { name: /^Hello\b/i }))
+      .first(),
   ).toBeVisible({ timeout: 30_000 });
+
+  await expect(
+    page
+      .locator(".ps-widget--account-dashboard")
+      .getByText(/^Logout$/i)
+      .first(),
+  ).toBeVisible({ timeout: 15_000 });
 }
 
 const ACCOUNT_SIDEBAR_LINKS = {
@@ -171,7 +222,11 @@ export async function registerBuyer(page, overrides = {}) {
 export async function loginBuyer(page, email, password) {
   await gotoOneDirectBuy(page, "/account/login");
   await fillLoginForm(page, email, password);
-  await page.getByRole("button", { name: /^Login$/i }).click();
+  await page
+    .getByRole("button", { name: /^Sign in$/i })
+    .or(page.getByRole("button", { name: /^Login$/i }))
+    .first()
+    .click();
   await expectLoggedIn(page);
 }
 

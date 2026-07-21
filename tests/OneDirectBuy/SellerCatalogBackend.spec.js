@@ -1,8 +1,8 @@
-import { test } from "@playwright/test";
+import { test } from "../helpers/softTest.js";
 
 /**
  * Seller catalog, inventory, fitment upload, and bulk operations from main.csv / seller.csv.
- * These flows require an authenticated seller workspace (OneChannelAdmin or seller portal),
+ * These flows require an authenticated seller workspace (OneChannel Admin / seller portal),
  * which is not mounted on the public OneDirectBuy storefront.
  */
 const BACKEND_ONLY_CASES = [
@@ -44,7 +44,7 @@ test.describe("OneDirectBuy — Seller catalog & inventory (backend portal)", ()
     test(`${id}: ${title} — tracked, requires seller backend`, async () => {
       test.skip(
         true,
-        "Automate in seller/admin portal when ONEDIRECTBUY_SELLER credentials and routes are available."
+        "Automate in OneChannel Admin / seller portal when ONEDIRECTBUY_SELLER credentials and routes are available.",
       );
     });
   }

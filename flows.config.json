@@ -1,0 +1,103 @@
+{
+  "$comment": "Local flow runner — same idea as GitHub Actions (ci-tests.config.json). Toggle enabled per flow, then run: npm test. GHA keeps using ci-tests.config.json via npm run test:ci.",
+  "workers": 4,
+  "retries": 1,
+  "flows": [
+    {
+      "id": 1,
+      "name": "Guest Chrome (Homepage & Navigation)",
+      "enabled": true,
+      "tests": [
+        "tests/OneDirectBuy/Homepage.spec.js",
+        "tests/OneDirectBuy/Navigation.spec.js"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Search & Shop Listing",
+      "enabled": true,
+      "tests": [
+        "tests/OneDirectBuy/Search.spec.js",
+        "tests/OneDirectBuy/CategoryProductListing.spec.js"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Vehicle Fitment",
+      "enabled": true,
+      "tests": ["tests/OneDirectBuy/AutoPartsFitment.spec.js"]
+    },
+    {
+      "id": 4,
+      "name": "Product Detail",
+      "enabled": true,
+      "tests": ["tests/OneDirectBuy/ProductDetail.spec.js"]
+    },
+    {
+      "id": 5,
+      "name": "Cart",
+      "enabled": true,
+      "tests": ["tests/OneDirectBuy/Cart.spec.js"]
+    },
+    {
+      "id": 6,
+      "name": "Auth (Login & Buyer Account)",
+      "enabled": true,
+      "tests": [
+        "tests/OneDirectBuy/Login.spec.js",
+        "tests/OneDirectBuy/BuyerAccount.spec.js",
+        "tests/OneDirectBuy/BuyerAccountAuthenticated.spec.js"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "Checkout",
+      "enabled": true,
+      "tests": ["tests/OneDirectBuy/Checkout.spec.js"]
+    },
+    {
+      "id": 8,
+      "name": "Legal & SEO",
+      "enabled": true,
+      "tests": [
+        "tests/OneDirectBuy/LegalPages.spec.js",
+        "tests/OneDirectBuy/ErrorHandlingSeo.spec.js"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "Seller Storefront & Onboarding",
+      "enabled": true,
+      "tests": [
+        "tests/OneDirectBuy/SellerStorefront.spec.js",
+        "tests/OneDirectBuy/SellerOnboarding.spec.js"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "Seller/Admin Backends",
+      "enabled": true,
+      "tests": [
+        "tests/OneDirectBuy/SellerMessaging.spec.js",
+        "tests/OneDirectBuy/SellerOrders.spec.js",
+        "tests/OneDirectBuy/SellerPromotions.spec.js",
+        "tests/OneDirectBuy/SellerAdminManagement.spec.js",
+        "tests/OneDirectBuy/SellerCatalogBackend.spec.js",
+        "tests/OneDirectBuy/SellerCsvCoverage.spec.js",
+        "tests/OneDirectBuy/AdminBackend.spec.js"
+      ]
+    },
+    {
+      "id": 11,
+      "name": "Responsive UI & Accessibility",
+      "enabled": true,
+      "tests": ["tests/OneDirectBuy/ResponsiveAccessibility.spec.js"]
+    },
+    {
+      "id": 12,
+      "name": "Buyer Address Book",
+      "enabled": true,
+      "tests": ["tests/OneDirectBuy/BuyerAddress.spec.js"]
+    }
+  ]
+}

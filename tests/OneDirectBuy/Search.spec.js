@@ -1,64 +1,102 @@
 import { test, expect } from "../helpers/softTest.js";
-import { gotoOneDirectBuy } from "../helpers/oneDirectBuyNav.js";
+import {
+  gotoOneDirectBuy,
+  searchProducts,
+  shopSortSelect,
+  waitForShopProducts,
+} from "../helpers/oneDirectBuyNav.js";
+
+const DESKTOP = { width: 1920, height: 1080 };
 
 test.describe("OneDirectBuy — Search", () => {
-  test("ODB-UC-030: buyer searches products using keyword", async ({ page, soft }) => {
-    await soft("ODB-UC-030", "Keyword search shows results heading", async () => {
-      await gotoOneDirectBuy(page, "/search?keyword=bearing");
-      await expect(
-        page.getByRole("heading", { name: /Search result for/i }),
-      ).toBeVisible({ timeout: 15_000 });
-      await expect(page.getByText(/bearing|product|SKU/i).first()).toBeVisible({
-        timeout: 30_000,
-      });
-    });
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize(DESKTOP);
+  });
+
+  test("ODB-UC-030: buyer searches products using keyword", async ({
+    page,
+    soft,
+  }) => {
+    await soft(
+      "ODB-UC-030",
+      "Type keyword in header Search products → results heading",
+      async () => {
+        await gotoOneDirectBuy(page, "/");
+        await searchProducts(page, "bearing");
+        await expect(page).toHaveURL(/\/search\?keyword=bearing/i);
+        await expect(
+          page.getByRole("heading", {
+            name: /Search result for:\s*"?\s*bearing/i,
+          }),
+        ).toBeVisible({ timeout: 20_000 });
+        await expect(page.locator('a[href*="/product/"]').first()).toBeVisible({
+          timeout: 30_000,
+        });
+      },
+    );
   });
 
   test("ODB-UC-031: no results search displays no-result message", async ({
     page,
     soft,
   }) => {
-    await soft("ODB-UC-031", "Empty search shows no-result message in main content", async () => {
-      await gotoOneDirectBuy(page, "/search?keyword=zzzznonexistentproduct99999");
-      const main = page.locator("main, .ps-page, .ps-shopping, #__next, body").first();
-      // Avoid matching hidden cart empty-state ("No products in cart")
-      const emptyMsg = main
-        .getByText(
-          /no products found|0 products found|no result|not found|nothing found|no items/i,
-        )
-        .filter({ hasNotText: /cart/i })
-        .first();
-      await expect(emptyMsg).toBeVisible({ timeout: 30_000 });
-    });
+    await soft(
+      "ODB-UC-031",
+      "Empty keyword shows 'No product found.' (not cart empty state)",
+      async () => {
+        await gotoOneDirectBuy(
+          page,
+          "/search?keyword=zzzznonexistentproduct99999",
+        );
+        await expect(
+          page.getByRole("heading", { name: /Search result for/i }),
+        ).toBeVisible({ timeout: 15_000 });
+        await expect(
+          page.getByText(/^No product found\.?$/i).first(),
+        ).toBeVisible({ timeout: 15_000 });
+        await expect(page.locator('a[href*="/product/"]')).toHaveCount(0);
+      },
+    );
   });
 
   test("ODB-UC-032: spelling variation search handles misspelled terms", async ({
     page,
     soft,
   }) => {
-    await soft("ODB-UC-032", "Misspelled keyword still loads search page", async () => {
-      await gotoOneDirectBuy(page, "/search?keyword=bering");
-      await expect(
-        page.getByRole("heading", { name: /Search result for/i }),
-      ).toBeVisible();
-      await expect(page.locator("body")).toBeVisible();
-    });
+    await soft(
+      "ODB-UC-032",
+      "Misspelled keyword still loads search results page",
+      async () => {
+        await gotoOneDirectBuy(page, "/");
+        await searchProducts(page, "bering");
+        await expect(
+          page.getByRole("heading", { name: /Search result for/i }),
+        ).toBeVisible({ timeout: 20_000 });
+      },
+    );
   });
 
-  test("ODB-UC-034: search results filter by selected category", async ({
+  test("ODB-UC-034: shop category sidebar filters listing", async ({
     page,
     soft,
   }) => {
-    await soft("ODB-UC-034", "Category filter on shop listing", async () => {
+    await soft("ODB-UC-034", "Click Exterior in Categories sidebar", async () => {
       await gotoOneDirectBuy(page, "/shop");
-      await expect(page.getByText(/\d+ Products found/i)).toBeVisible({
-        timeout: 60_000,
-      });
-      const category = page.getByText(/^AC FILTER$|^Exterior$|^Interior$/i).first();
-      if (await category.isVisible({ timeout: 5000 }).catch(() => false)) {
-        await category.click();
-        await expect(page.getByText(/\d+ Products found/i)).toBeVisible();
-      }
+      await waitForShopProducts(page);
+      const exterior = page
+        .getByRole("heading", { name: /^Categories$/i })
+        .locator("..")
+        .getByRole("link", { name: /^Exterior$/i })
+        .or(page.getByRole("link", { name: /^Exterior$/i }))
+        .first();
+      await exterior.click();
+      await page.waitForURL(/\/category\/exterior|\/shop/i, { timeout: 20_000 });
+      await expect(
+        page
+          .getByText(/\d+ Products found/i)
+          .or(page.getByRole("heading", { name: /Exterior|Shop/i }))
+          .first(),
+      ).toBeVisible({ timeout: 30_000 });
     });
   });
 
@@ -66,34 +104,22 @@ test.describe("OneDirectBuy — Search", () => {
     page,
     soft,
   }) => {
-    await soft("ODB-UC-035", "Sort by price low/high via Sort items combobox", async () => {
+    await soft("ODB-UC-035", "Sort items: low to high then high to low", async () => {
       await gotoOneDirectBuy(page, "/shop");
-      await expect(page.getByText(/\d+ Products found/i)).toBeVisible({
-        timeout: 60_000,
-      });
-      // Prefer Sort items — header also has a Product category combobox
-      const sort = page
-        .getByLabel(/Sort items/i)
-        .or(page.locator('select[aria-label="Sort items"], select.ps-select'))
-        .first();
-      await sort.selectOption({ label: /low to high/i });
-      await page.waitForTimeout(1500);
-      await sort.selectOption({ label: /high to low/i });
+      await waitForShopProducts(page);
+      const sort = shopSortSelect(page);
+      await sort.selectOption({ value: "price-asc" });
+      await expect(page.getByText(/\$\s*\d+/).first()).toBeVisible();
+      await sort.selectOption({ value: "price-desc" });
       await expect(page.getByText(/\$\s*\d+/).first()).toBeVisible();
     });
   });
 
   test("ODB-UC-036: results sort by newest products", async ({ page, soft }) => {
-    await soft("ODB-UC-036", "Sort by latest via Sort items combobox", async () => {
+    await soft("ODB-UC-036", "Sort items → Sort by latest", async () => {
       await gotoOneDirectBuy(page, "/shop");
-      await expect(page.getByText(/\d+ Products found/i)).toBeVisible({
-        timeout: 60_000,
-      });
-      const sort = page
-        .getByLabel(/Sort items/i)
-        .or(page.locator('select[aria-label="Sort items"], select.ps-select'))
-        .first();
-      await sort.selectOption({ label: /latest|newest/i });
+      await waitForShopProducts(page);
+      await shopSortSelect(page).selectOption({ value: "latest" });
       await expect(page.locator('a[href*="/product/"]').first()).toBeVisible({
         timeout: 30_000,
       });
@@ -104,12 +130,15 @@ test.describe("OneDirectBuy — Search", () => {
     page,
     soft,
   }) => {
-    await soft("ODB-UC-037", "Open product from search results", async () => {
-      await gotoOneDirectBuy(page, "/search?keyword=bearing");
+    await soft("ODB-UC-037", "Open first product from bearing search", async () => {
+      await gotoOneDirectBuy(page, "/");
+      await searchProducts(page, "bearing");
       const productLink = page.locator('a[href*="/product/"]').first();
       await expect(productLink).toBeVisible({ timeout: 60_000 });
-      await productLink.click();
-      await expect(page).toHaveURL(/\/product\//);
+      await Promise.all([
+        page.waitForURL(/\/product\//, { timeout: 30_000 }),
+        productLink.click(),
+      ]);
     });
   });
 
@@ -117,12 +146,13 @@ test.describe("OneDirectBuy — Search", () => {
     page,
     soft,
   }) => {
-    await soft("ODB-UC-507", "Search responds within 20s", async () => {
+    await soft("ODB-UC-507", "Header search responds within 20s", async () => {
+      await gotoOneDirectBuy(page, "/");
       const start = Date.now();
-      await gotoOneDirectBuy(page, "/search?keyword=filter");
+      await searchProducts(page, "filter");
       await expect(
         page.getByRole("heading", { name: /Search result for/i }),
-      ).toBeVisible();
+      ).toBeVisible({ timeout: 20_000 });
       expect(Date.now() - start).toBeLessThan(20_000);
     });
   });

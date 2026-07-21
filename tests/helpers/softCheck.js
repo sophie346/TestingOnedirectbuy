@@ -18,13 +18,27 @@ export const MARKERS = {
   NAVIGATION: "[NAVIGATION]",
   PERFORMANCE: "[PERFORMANCE]",
   AUTH: "[AUTH]",
+  INFRA: "[INFRA]",
+  BLOCKED: "[BLOCKED]",
 };
+
+/**
+ * True when the failure is environment/network — not a product UI bug.
+ * @param {unknown} err
+ */
+export function isInfraError(err) {
+  const msg = String(err && err.message != null ? err.message : err);
+  return /ERR_NAME_NOT_RESOLVED|ERR_CONNECTION|ERR_INTERNET_DISCONNECTED|ERR_TIMED_OUT|ERR_ADDRESS_UNREACHABLE|net::ERR_|chrome-error:\/\/|NS_ERROR_UNKNOWN_HOST|no healthy upstream|502 bad gateway|503 service/i.test(
+    msg,
+  );
+}
 
 /**
  * @param {unknown} err
  */
 export function classifyError(err) {
   const msg = String(err && err.message != null ? err.message : err);
+  if (isInfraError(err)) return MARKERS.INFRA;
   if (/strict mode violation/i.test(msg)) return MARKERS.STRICT_MODE;
   if (/TimeoutError|Timeout \d+ms exceeded/i.test(msg)) return MARKERS.TIMEOUT;
   if (/waiting for|locator\.(click|fill|selectOption)/i.test(msg)) {
@@ -44,6 +58,10 @@ export function classifyError(err) {
  */
 function suggestionFor(marker) {
   switch (marker) {
+    case MARKERS.INFRA:
+      return "Infrastructure/network failure (DNS, connection, gateway) — not a product bug. Re-run when the site is reachable.";
+    case MARKERS.BLOCKED:
+      return "Journey stopped because a prior required step failed — fix that step first; later steps were not run.";
     case MARKERS.STRICT_MODE:
       return "Locator matched multiple elements — narrow with getByLabel / getByRole name / .first() scoped to the section.";
     case MARKERS.MISSING_ELEMENT:
@@ -58,6 +76,16 @@ function suggestionFor(marker) {
     default:
       return "Reproduce with the screenshot, compare against live UI, update assertion or fix product bug.";
   }
+}
+
+/**
+ * Category for filtering what to send to product developers.
+ * @param {string} marker
+ */
+export function issueCategory(marker) {
+  if (marker === MARKERS.INFRA || marker === MARKERS.BLOCKED) return "infra";
+  if (marker === MARKERS.STRICT_MODE) return "automation";
+  return "product";
 }
 
 /**
@@ -78,11 +106,13 @@ export function createSoftChecker(page, testInfo) {
    */
   async function soft(id, title, fn, opts = {}) {
     const severity = opts.severity || "major";
+    const forceMarker = opts.marker || "";
     try {
       await fn();
       return true;
     } catch (err) {
-      const marker = classifyError(err);
+      const marker = forceMarker || classifyError(err);
+      const category = opts.category || issueCategory(marker);
       const evidence = String(err && err.message != null ? err.message : err)
         .split("\n")
         .slice(0, 6)
@@ -90,20 +120,33 @@ export function createSoftChecker(page, testInfo) {
         .slice(0, 800);
 
       let screenshotPath = "";
-      try {
-        fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
-        const safe = `${id}-${Date.now()}`.replace(/[^\w.-]+/g, "_");
-        screenshotPath = path.join(SCREENSHOT_DIR, `${safe}.png`);
-        await page.screenshot({ path: screenshotPath, fullPage: true });
-      } catch {
-        screenshotPath = "";
+      // Skip full-page shots on chrome-error / dead pages — not useful for product.
+      const skipShot =
+        category === "infra" ||
+        /chrome-error:\/\//i.test((() => {
+          try {
+            return page.url();
+          } catch {
+            return "";
+          }
+        })());
+      if (!skipShot) {
+        try {
+          fs.mkdirSync(SCREENSHOT_DIR, { recursive: true });
+          const safe = `${id}-${Date.now()}`.replace(/[^\w.-]+/g, "_");
+          screenshotPath = path.join(SCREENSHOT_DIR, `${safe}.png`);
+          await page.screenshot({ path: screenshotPath, fullPage: true });
+        } catch {
+          screenshotPath = "";
+        }
       }
 
       const issue = {
         marker,
         id,
         title,
-        severity,
+        severity: category === "infra" ? "minor" : severity,
+        category,
         source: "soft-check",
         testFile: path.relative(process.cwd(), testInfo.file).replace(/\\/g, "/"),
         testTitle: testInfo.title,

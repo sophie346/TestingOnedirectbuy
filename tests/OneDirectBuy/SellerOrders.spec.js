@@ -1,69 +1,111 @@
-import { test, expect } from "@playwright/test";
-import { gotoOneDirectBuy } from "../helpers/oneDirectBuyNav.js";
+import { test, expect } from "../helpers/softTest.js";
+import {
+  gotoOneDirectBuy,
+  waitForShopProducts,
+} from "../helpers/oneDirectBuyNav.js";
 import {
   ensureLoggedInBuyer,
+  hasBuyerCredentials,
   gotoAuthenticatedPage,
   ONE_DIRECT_BUY_BUYER_CREDENTIALS,
 } from "../helpers/oneDirectBuyAuth.js";
 
-test.describe.configure({ mode: "serial" });
+const DESKTOP = { width: 1920, height: 1080 };
 
-test.describe("OneDirectBuy — Buyer Orders (seller-related flows)", () => {
+test.describe("OneDirectBuy — Guest order tracking (seller-related)", () => {
   test.beforeEach(async ({ page }) => {
+    await page.setViewportSize(DESKTOP);
+  });
+
+  test("ODB-UC-169: guest order tracking form is available", async ({
+    page,
+    soft,
+  }) => {
+    await soft("ODB-UC-169", "Order Tracking H1 + Order ID + Track Your Order", async () => {
+      await gotoOneDirectBuy(page, "/account/order-tracking");
+      await expect(page).toHaveURL(/\/account\/order-tracking/);
+      await expect(
+        page.getByRole("heading", { name: /^Order Tracking$/i }),
+      ).toBeVisible({ timeout: 30_000 });
+      await expect(page.getByRole("textbox", { name: /^Order ID$/i })).toBeVisible();
+      await expect(
+        page.getByRole("textbox", { name: /^Email address$/i }),
+      ).toBeVisible();
+      await expect(
+        page.getByRole("button", { name: /^Track Your Order$/i }),
+      ).toBeVisible();
+    });
+  });
+
+  test("ODB-UC-177: shop supports multi-seller catalog for combined orders", async ({
+    page,
+    soft,
+  }) => {
+    await soft("ODB-UC-177", "Shop listing has product cards", async () => {
+      await gotoOneDirectBuy(page, "/shop");
+      await waitForShopProducts(page);
+      await expect(page.locator('a[href*="/product/"]').first()).toBeVisible();
+    });
+  });
+});
+
+test.describe("OneDirectBuy — Buyer Orders (authenticated)", () => {
+  test.describe.configure({ mode: "serial" });
+
+  test.beforeEach(async ({ page }) => {
+    await page.setViewportSize(DESKTOP);
+    if (!hasBuyerCredentials()) {
+      test.skip(true, "Set ONEDIRECTBUY_BUYER_EMAIL and ONEDIRECTBUY_BUYER_PASSWORD");
+      return;
+    }
     await ensureLoggedInBuyer(page);
   });
 
-  test("ODB-UC-167: buyer views order history page", async ({ page }) => {
-    await gotoOneDirectBuy(page, "/account/my-account");
-    await expect(
-      page.getByText(/recent orders|order history|order|dashboard/i).first()
-    ).toBeVisible({ timeout: 20_000 });
+  test("ODB-UC-167: buyer views order history / dashboard", async ({
+    page,
+    soft,
+  }) => {
+    await soft("ODB-UC-167", "my-account + /account/orders", async () => {
+      await gotoOneDirectBuy(page, "/account/my-account");
+      await expect(
+        page.getByText(/account dashboard|Hello|recent orders/i).first(),
+      ).toBeVisible({ timeout: 30_000 });
 
-    await gotoOneDirectBuy(page, "/account/orders");
-    const onOrders = page.url().includes("/account/orders");
-    const onLogin = page.url().includes("/account/login");
-    expect(onOrders || onLogin).toBeTruthy();
-    if (onOrders) {
-      await expect(page.getByText(/order|history|empty|no order/i).first()).toBeVisible();
-    }
-  });
-
-  test("ODB-UC-169: buyer opens order tracking page", async ({ page }) => {
-    await gotoOneDirectBuy(page, "/account/order-tracking");
-    const onTracking = /order-track|order-tracking|track/.test(page.url());
-    if (!onTracking) {
-      await gotoOneDirectBuy(page, "/page/track-order");
-    }
-    await expect(page.getByText(/track|order|shipment/i).first()).toBeVisible({
-      timeout: 20_000,
+      await gotoOneDirectBuy(page, "/account/orders");
+      await expect(page).toHaveURL(/\/account\/orders/);
+      await expect(
+        page.getByText(/order|history|empty|no order|Orders/i).first(),
+      ).toBeVisible({ timeout: 30_000 });
     });
   });
 
   test("ODB-UC-168: buyer can access orders list shell for order details", async ({
     page,
+    soft,
   }) => {
-    await gotoOneDirectBuy(page, "/account/my-account");
-    await expect(page.getByText(/recent orders|order|dashboard/i).first()).toBeVisible();
-  });
-
-  test("ODB-UC-177: multi-seller checkout context — shop supports multiple products", async ({
-    page,
-  }) => {
-    await gotoOneDirectBuy(page, "/shop");
-    await expect(page.locator('a[href*="/product/"]').first()).toBeVisible({
-      timeout: 120_000,
+    await soft("ODB-UC-168", "Orders page shell after login", async () => {
+      await gotoOneDirectBuy(page, "/account/orders");
+      await expect(page).toHaveURL(/\/account\/orders/);
+      await expect(
+        page.getByText(/order|history|empty|no order|Orders/i).first(),
+      ).toBeVisible({ timeout: 30_000 });
     });
   });
 
   test("ODB-UC-180: buyer order area loads for combined order review", async ({
     page,
+    soft,
   }) => {
-    await gotoAuthenticatedPage(
-      page,
-      "/account/my-account",
-      ONE_DIRECT_BUY_BUYER_CREDENTIALS
-    );
-    await expect(page.getByText(/account dashboard|Hello|recent orders/i).first()).toBeVisible();
+    await soft("ODB-UC-180", "Authenticated my-account for multi-seller review", async () => {
+      await gotoAuthenticatedPage(
+        page,
+        "/account/my-account",
+        ONE_DIRECT_BUY_BUYER_CREDENTIALS,
+      );
+      await expect(
+        page.getByText(/account dashboard|Hello|recent orders/i).first(),
+      ).toBeVisible({ timeout: 30_000 });
+    });
   });
 });
 

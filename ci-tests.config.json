@@ -3,15 +3,20 @@
   "workers": 4,
   "retries": 1,
   "suites": {
-    "smoke": ["Login.spec.js", "Homepage.spec.js"],
+    "smoke": ["BuyerPurchaseJourney.spec.js", "Login.spec.js", "Homepage.spec.js"],
     "regression": "enabled",
     "all": "all"
   },
   "tests": [
     {
+      "file": "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js",
+      "enabled": true,
+      "description": "Gated journey: login → cart → checkout → place order"
+    },
+    {
       "file": "tests/OneDirectBuy/Login.spec.js",
       "enabled": true,
-      "description": "Login form and buyer authentication (ODB-UC-005)"
+      "description": "Login — Welcome back form, invalid sign-in, credentials"
     },
     {
       "file": "tests/OneDirectBuy/Homepage.spec.js",
@@ -26,7 +31,107 @@
     {
       "file": "tests/OneDirectBuy/Search.spec.js",
       "enabled": true,
-      "description": "Product search"
+      "description": "Product search (header search, empty state, sort)"
+    },
+    {
+      "file": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+      "enabled": true,
+      "description": "Shop listing, filters, pagination, add to cart from card"
+    },
+    {
+      "file": "tests/OneDirectBuy/AutoPartsFitment.spec.js",
+      "enabled": true,
+      "description": "Select Vehicle / My Vehicles garage and Year-Make-Model fitment"
+    },
+    {
+      "file": "tests/OneDirectBuy/ProductDetail.spec.js",
+      "enabled": true,
+      "description": "Product detail page — gallery, ATC, tabs, related, 404"
+    },
+    {
+      "file": "tests/OneDirectBuy/Cart.spec.js",
+      "enabled": true,
+      "description": "Shopping cart — add, qty, remove, coupon, checkout CTA"
+    },
+    {
+      "file": "tests/OneDirectBuy/BuyerAccount.spec.js",
+      "enabled": true,
+      "description": "Public auth — register form, terms, guest orders gate"
+    },
+    {
+      "file": "tests/OneDirectBuy/BuyerAccountAuthenticated.spec.js",
+      "enabled": true,
+      "description": "Authenticated buyer account (needs buyer credentials)"
+    },
+    {
+      "file": "tests/OneDirectBuy/Checkout.spec.js",
+      "enabled": true,
+      "description": "Checkout — shipping form, order summary, payment-success"
+    },
+    {
+      "file": "tests/OneDirectBuy/LegalPages.spec.js",
+      "enabled": true,
+      "description": "Legal/policy pages under /info/* and Policies hub"
+    },
+    {
+      "file": "tests/OneDirectBuy/ErrorHandlingSeo.spec.js",
+      "enabled": true,
+      "description": "404, sitemap XML, contact-us, PDP canonical"
+    },
+    {
+      "file": "tests/OneDirectBuy/SellerStorefront.spec.js",
+      "enabled": true,
+      "description": "Buyer-facing stores list, store detail, Sold by on PDP"
+    },
+    {
+      "file": "tests/OneDirectBuy/SellerOnboarding.spec.js",
+      "enabled": true,
+      "description": "Become a vendor landing + seller application form"
+    },
+    {
+      "file": "tests/OneDirectBuy/SellerMessaging.spec.js",
+      "enabled": true,
+      "description": "Contact Seller → Conversations; auth order messaging shell"
+    },
+    {
+      "file": "tests/OneDirectBuy/SellerOrders.spec.js",
+      "enabled": true,
+      "description": "Order Tracking form + buyer orders (auth); seller portal skips"
+    },
+    {
+      "file": "tests/OneDirectBuy/SellerPromotions.spec.js",
+      "enabled": true,
+      "description": "Cart coupon field for seller promotions"
+    },
+    {
+      "file": "tests/OneDirectBuy/SellerAdminManagement.spec.js",
+      "enabled": true,
+      "description": "Admin/store search on storefront; OneChannel approve/reject skips"
+    },
+    {
+      "file": "tests/OneDirectBuy/SellerCatalogBackend.spec.js",
+      "enabled": true,
+      "description": "Tracked skips for seller catalog/inventory (OneChannel)"
+    },
+    {
+      "file": "tests/OneDirectBuy/SellerCsvCoverage.spec.js",
+      "enabled": true,
+      "description": "seller.csv load + ODB-UC id coverage in Seller*.spec.js"
+    },
+    {
+      "file": "tests/OneDirectBuy/AdminBackend.spec.js",
+      "enabled": true,
+      "description": "Admin login storefront checks (needs admin/buyer credentials)"
+    },
+    {
+      "file": "tests/OneDirectBuy/ResponsiveAccessibility.spec.js",
+      "enabled": true,
+      "description": "Mobile bottom bar + login a11y labels/validation"
+    },
+    {
+      "file": "tests/OneDirectBuy/BuyerAddress.spec.js",
+      "enabled": true,
+      "description": "Address book guest gate + CRUD (needs buyer credentials)"
     }
   ]
 }
