@@ -4,6 +4,7 @@
   "description": "Playwright E2E automation for OneDirectBuy",
   "main": "index.js",
   "scripts": {
+    "kubernet-deploy": "kubectl apply -f kubernetes/deployment.yaml",
     "test": "cross-env CI_TESTS_CONFIG=flows.config.json node scripts/run-ci-tests.js",
     "test:headed": "cross-env CI_TESTS_CONFIG=flows.config.json PW_HEADED=1 HEADLESS=false PW_HEADLESS=0 node scripts/run-ci-tests.js",
     "test:ui": "playwright test --ui",

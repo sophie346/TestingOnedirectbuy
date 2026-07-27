@@ -33,6 +33,20 @@ lib/                 # shared framework utilities
 reporters/           # custom Playwright reporters
 ```
 
+## Deploy
+
+| Role | URL |
+|------|-----|
+| UI | https://onetest.onechanneladmin.com |
+| Backend / API | https://dev-onetest.onechanneladmin.com |
+
+Same GKE Deployment (`onetest`). See **[DEPLOY.md](./DEPLOY.md)**.
+
+```bash
+gcloud builds submit --config=cloudbuild.yaml --project=gentle-epoch-277301 .
+kubectl apply -f <onechanneladmin-latest>/deploymentsAll/ui/deployment-onetest.yaml
+```
+
 ## CI
 
 GitHub Actions (`.github/workflows/playwright.yml`) runs on push/PR to `main`, `master`, or `develop`.
