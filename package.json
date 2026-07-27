@@ -21,6 +21,10 @@
     "cleanup": "node scripts/cleanup-artifacts.js",
     "cleanup:dry-run": "node scripts/cleanup-artifacts.js --dry-run",
     "ci": "cross-env CI=1 CI_FAST=1 HEADLESS=true PW_HEADLESS=1 UI_ANALYSIS=0 REPORT_UPLOAD=0 DASHBOARD_UPLOAD=0 playwright test --project=chromium",
+    "server": "node server/index.js",
+    "server:seed": "node server/index.js --seed",
+    "extract-flow-steps": "node scripts/extract-flow-steps.js",
+    "smoke:api": "node scripts/smoke-flow-api.js",
     "posttest": "node -e \"console.log('Reports: reports/<run>/ — toggle flows in flows.config.json (npm test) or files in ci-tests.config.json (npm run test:ci)')\""
   },
   "keywords": [
@@ -33,14 +37,22 @@
   "license": "ISC",
   "devDependencies": {
     "@playwright/test": "^1.57.0",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
     "@types/node": "^24.10.1",
     "archiver": "^7.0.1",
     "cross-env": "^7.0.3",
     "dotenv": "^17.4.2",
+    "mongodb-memory-server": "^11.2.0",
     "tsx": "^4.23.1",
     "typescript": "^5.9.3"
   },
   "engines": {
     "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "mongoose": "^9.8.0"
   }
 }

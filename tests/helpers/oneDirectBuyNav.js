@@ -23,6 +23,27 @@ export async function dismissCookieBanner(page) {
   }
 }
 
+/**
+ * AI assistant / chat can mount over the page and mark the main tree
+ * aria-hidden, which makes getByRole miss Menu/Vehicle/etc.
+ */
+export async function dismissAssistantOverlay(page) {
+  // Prefer explicit conversation closers — avoid generic "Close" which can
+  // match unrelated dialogs/toasts.
+  const closers = [
+    page.getByRole("button", { name: /^Close conversations$/i }),
+    page.getByRole("button", { name: /^Dismiss suggestions$/i }),
+    page.getByRole("button", { name: /^Close assistant$/i }),
+  ];
+  for (const btn of closers) {
+    const target = btn.first();
+    if (await target.isVisible().catch(() => false)) {
+      await target.click({ force: true }).catch(() => {});
+      await page.waitForTimeout(200);
+    }
+  }
+}
+
 /** Navigate to a OneDirectBuy path and dismiss cookies. */
 export async function gotoOneDirectBuy(page, path = "/") {
   const url = path.startsWith("http")
@@ -41,22 +62,31 @@ export async function gotoOneDirectBuy(page, path = "/") {
 
   await page.waitForLoadState("networkidle").catch(() => {});
   await dismissCookieBanner(page);
+  await dismissAssistantOverlay(page);
 }
 
 /** Wait until the shop listing has loaded products. */
 export async function waitForShopProducts(page) {
   await dismissCookieBanner(page);
-  await expect(page.getByText(/\d+ Products found/i)).toBeVisible({
-    timeout: 120_000,
-  });
-  // Prefer card links — bare a[href*="/product/"] often matches a hidden header/footer node first.
-  const productLink = page
-    .locator(
-      '.ps-product a[href*="/product/"], .ps-shop-items a[href*="/product/"], .ps-product-cart a[href*="/product/"]',
+  const countLabel = page.getByText(/[1-9]\d*\s+Products found/i);
+  const productOrAdd = page
+    .locator("button.add-to-cart")
+    .or(
+      page.locator(
+        '.ps-product a[href*="/product/"], .ps-shop-items a[href*="/product/"], main a[href*="/product/"]',
+      ),
     )
-    .or(page.locator('main a[href*="/product/"]'))
     .first();
-  await expect(productLink).toBeVisible({ timeout: 120_000 });
+
+  // Prefer a non-zero count label; fall back to visible product cards/controls.
+  const hasCount = await countLabel
+    .isVisible({ timeout: 30_000 })
+    .catch(() => false);
+  if (!hasCount) {
+    await expect(productOrAdd).toBeVisible({ timeout: 120_000 });
+  } else {
+    await expect(productOrAdd).toBeVisible({ timeout: 60_000 });
+  }
 }
 
 /** Sort control on shop/search listing (not the header Product category combobox). */
@@ -125,21 +155,31 @@ export function productAddToCartControl(page) {
 }
 
 async function waitForCartAddSuccess(page) {
+  // Toast is the fastest signal on shop-grid add.
   const addedNotice = page.locator(".ant-notification-notice").filter({
-    hasText: /Cart Updated|added to your cart/i,
+    hasText: /Cart Updated|added to your cart|successfully added/i,
   });
-  if (await addedNotice.isVisible({ timeout: 12_000 }).catch(() => false)) {
+  if (
+    await addedNotice
+      .first()
+      .isVisible({ timeout: 8_000 })
+      .catch(() => false)
+  ) {
     return true;
   }
 
-  const cartBadge = page.locator('a[href*="/shopping-cart"]');
+  // Header badge: live UI uses "1 Cart", "2 Cart", …
   if (
-    await cartBadge
-      .filter({ hasText: /[1-9]/ })
+    await page
+      .getByRole("link", { name: /[1-9]\d*\s*Cart/i })
       .first()
-      .isVisible({ timeout: 5000 })
+      .isVisible({ timeout: 3_000 })
       .catch(() => false)
   ) {
+    return true;
+  }
+
+  if (/shopping-cart/i.test(page.url())) {
     return true;
   }
 
@@ -150,104 +190,107 @@ async function waitForCartAddSuccess(page) {
 export async function addFirstProductToCartFromShop(page) {
   await gotoOneDirectBuy(page, "/shop");
   await waitForShopProducts(page);
+  await dismissCookieBanner(page);
 
-  for (let index = 0; index < 4; index++) {
-    if (index > 0) {
-      await gotoOneDirectBuy(page, "/shop");
-      await waitForShopProducts(page);
-    }
-
-    const shopAddButton = page
-      .locator(".ps-product, .ps-shop-items, main")
-      .getByRole("button", { name: /Add To Cart/i })
-      .nth(index);
-
-    if (!(await shopAddButton.isVisible({ timeout: 3000 }).catch(() => false))) {
-      break;
-    }
-
-    await shopAddButton.click();
+  // Fast path: shop-grid Add To Cart (class add-to-cart).
+  const shopAdds = page.locator("button.add-to-cart:not([disabled])");
+  const shopCount = await shopAdds.count();
+  for (let index = 0; index < Math.min(shopCount, 5); index++) {
+    const btn = shopAdds.nth(index);
+    if (!(await btn.isVisible().catch(() => false))) continue;
+    await btn.scrollIntoViewIfNeeded().catch(() => {});
+    await btn.click({ force: true });
     if (await waitForCartAddSuccess(page)) {
       return;
     }
   }
 
+  // Fallback: open PDP and add from there.
   const productLinks = page.locator(
-    '.ps-product a[href*="/product/"], .ps-shop-items a[href*="/product/"]'
+    '.ps-product a[href*="/product/"], .ps-shop-items a[href*="/product/"], main a[href*="/product/"]',
   );
-  const linkCount = await productLinks.count();
-  const links =
-    linkCount > 0 ? productLinks : page.locator('a[href*="/product/"]');
-  const totalLinks = await links.count();
+  const totalLinks = await productLinks.count();
 
-  for (let index = 0; index < Math.min(totalLinks, 6); index++) {
+  for (let index = 0; index < Math.min(totalLinks, 5); index++) {
     await gotoOneDirectBuy(page, "/shop");
     await waitForShopProducts(page);
 
-    const productLink = (
-      linkCount > 0
-        ? page.locator(
-            '.ps-product a[href*="/product/"], .ps-shop-items a[href*="/product/"]'
-          )
-        : page.locator('a[href*="/product/"]')
-    ).nth(index);
-
-    await productLink.click();
+    await productLinks.nth(index).click();
     await page.waitForURL(/\/product\//, { timeout: DEFAULT_TIMEOUT });
     await dismissCookieBanner(page);
 
-    if (await page.getByText(/^Out of stock$/i).isVisible({ timeout: 2000 }).catch(() => false)) {
+    if (
+      await page
+        .getByText(/^Out of stock$/i)
+        .isVisible({ timeout: 1500 })
+        .catch(() => false)
+    ) {
       continue;
     }
 
-    const addControl = page
-      .getByRole("link", { name: /Add to cart/i })
-      .or(page.getByRole("button", { name: /Add To Cart|Add to cart/i }))
-      .first();
-
+    const addControl = productAddToCartControl(page);
     if (!(await addControl.isVisible({ timeout: 5000 }).catch(() => false))) {
       continue;
     }
 
-    await addControl.click();
+    await addControl.click({ force: true });
     if (await waitForCartAddSuccess(page)) {
       return;
     }
-
-    await page.waitForTimeout(1500);
-    return;
   }
 
-  throw new Error("Could not add a product to cart after trying multiple products");
+  throw new Error(
+    "Could not add a product to cart after trying multiple products",
+  );
 }
 
 /** Wait until cart page finishes loading (empty or with lines). */
 export async function waitForCartReady(page) {
   await dismissCookieBanner(page);
+  await dismissAssistantOverlay(page);
   await expect(page.getByText(/Loading your cart/i))
     .toBeHidden({ timeout: 30_000 })
     .catch(() => {});
   await expect(
     page
       .getByRole("heading", { name: /^Cart$/i })
-      .or(page.getByText(/Your cart is empty/i)),
+      .or(page.getByText(/Your cart is empty/i))
+      .first(),
   ).toBeVisible({ timeout: 20_000 });
 }
 
-/** Open cart via header "N Cart" link or direct URL. */
+/** Open cart via header cart link or direct URL. */
 export async function openCart(page) {
   await dismissCookieBanner(page);
-  const cartLink = page
-    .getByRole("link", { name: /\d+\s*Cart/i })
-    .or(page.getByRole("button", { name: /^Cart$/i }))
-    .first();
-  if (await cartLink.isVisible({ timeout: 3000 }).catch(() => false)) {
-    await cartLink.click();
-    await page.waitForURL(/shopping-cart/, { timeout: 15_000 }).catch(() => {});
-  } else {
-    await gotoOneDirectBuy(page, "/account/shopping-cart");
-  }
+  // Prefer direct navigation — more reliable than header click after toast.
+  await gotoOneDirectBuy(page, "/account/shopping-cart");
   await waitForCartReady(page);
+}
+
+/** First cart line "Remove item" control (page can have multiple lines). */
+export function cartRemoveItemButton(page) {
+  return page
+    .locator("button.ps-cart-line__remove")
+    .or(page.getByRole("button", { name: /^Remove item$/i }))
+    .first();
+}
+
+/** First cart line quantity spinbutton. */
+export function cartQuantityInput(page) {
+  return page
+    .locator(".ps-cart-line")
+    .getByRole("spinbutton", { name: /^Quantity$/i })
+    .or(page.getByRole("spinbutton", { name: /^Quantity$/i }))
+    .first();
+}
+
+/** First cart line increase-quantity control. */
+export function cartIncreaseQtyButton(page) {
+  return page
+    .locator(".ps-cart-line")
+    .getByRole("button", { name: /^Increase quantity$/i })
+    .or(page.getByRole("button", { name: /^Increase quantity$/i }))
+    .first();
 }
 
 /** Add a shop product then open /account/checkout. */

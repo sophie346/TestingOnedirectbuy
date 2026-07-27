@@ -1,4 +1,5 @@
 // @ts-check
+import fs from "fs";
 import path from "path";
 import { config as loadDotenv } from "dotenv";
 import { defineConfig, devices } from "@playwright/test";
@@ -9,6 +10,38 @@ import { defineConfig, devices } from "@playwright/test";
  * See `.env.example`.
  */
 loadDotenv({ path: path.resolve(process.cwd(), ".env") });
+
+// Restore control-plane run context from reports/odb-flow-run.json
+// (must NOT live under test-results/ — Playwright wipes that folder on start).
+try {
+  const root = process.cwd();
+  const metaPath = path.resolve(root, "reports", "odb-flow-run.json");
+  const activePath = path.resolve(root, "reports", "odb-active-occurrence.txt");
+  let meta = null;
+  if (fs.existsSync(metaPath)) {
+    meta = JSON.parse(fs.readFileSync(metaPath, "utf8"));
+  }
+  const active = fs.existsSync(activePath)
+    ? fs.readFileSync(activePath, "utf8").trim()
+    : "";
+  const occurrenceId = meta?.occurrenceId || active;
+  if (occurrenceId) {
+    process.env.RUNNING_OCCURRENCE_ID = occurrenceId;
+  }
+  if (meta?.statusApiUrl) {
+    process.env.STATUS_API_URL = meta.statusApiUrl;
+  }
+  if (meta?.mongoUri) {
+    process.env.MONGODB_URI = meta.mongoUri;
+  }
+  if (occurrenceId) {
+    console.log(
+      `[config] control-plane occurrence=${occurrenceId} api=${process.env.STATUS_API_URL || ""}`,
+    );
+  }
+} catch {
+  // optional bridge
+}
 
 // Generic aliases → product-specific vars (same mapping as lib/env.js)
 if (process.env.BASE_URL && !process.env.PLAYWRIGHT_BASE_URL) {
@@ -33,16 +66,17 @@ const ciFast =
   process.env.CI_FAST === "1" ||
   process.env.CI_FAST === "true" ||
   (ci && process.env.CI_FAST !== "0" && process.env.CI_FAST !== "false");
-const testEnv = (
-  process.env.TEST_ENV || (ci ? "ci" : "local")
-).toLowerCase();
+const testEnv = (process.env.TEST_ENV || (ci ? "ci" : "local")).toLowerCase();
 
 /**
  * Unique report folder per run: playwright-report/YYYY-MM-DD_HH-mm-ss
  * Override via PW_REPORT_OUTPUT_DIR / PW_JSON_REPORT_PATH / PW_JUNIT_REPORT_PATH
  * (used by scripts/run-ci-tests.js to write straight into reports/).
  */
-const reportTimestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+const reportTimestamp = new Date()
+  .toISOString()
+  .replace(/[:.]/g, "-")
+  .slice(0, 19);
 const reportOutputDir =
   process.env.PW_REPORT_OUTPUT_DIR ||
   path.join("playwright-report", reportTimestamp);
@@ -140,7 +174,8 @@ export default defineConfig({
       ? [["./reporters/uiAnalysisReporter.js"]]
       : []),
     // HTML API upload — opt-in via REPORT_UPLOAD=1
-    ...(process.env.REPORT_UPLOAD === "1" || process.env.REPORT_UPLOAD === "true"
+    ...(process.env.REPORT_UPLOAD === "1" ||
+    process.env.REPORT_UPLOAD === "true"
       ? [["./reporters/uploadReporter.js"]]
       : []),
   ],

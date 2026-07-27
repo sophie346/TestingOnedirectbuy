@@ -1,0 +1,1182 @@
+{
+  "1": {
+    "flowId": 1,
+    "name": "Guest Chrome (Homepage & Navigation)",
+    "enabled": true,
+    "tests": [
+      "tests/OneDirectBuy/Homepage.spec.js",
+      "tests/OneDirectBuy/Navigation.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-026-a",
+        "title": "Homepage title contains OneDirectBuy",
+        "specFile": "tests/OneDirectBuy/Homepage.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-026-b",
+        "title": "H1 marketplace heading visible",
+        "specFile": "tests/OneDirectBuy/Homepage.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-026-c",
+        "title": "Hero: Find Parts That Fit Your Vehicle",
+        "specFile": "tests/OneDirectBuy/Homepage.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-026-d",
+        "title": "Store benefits row (all five)",
+        "specFile": "tests/OneDirectBuy/Homepage.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-026-e",
+        "title": "Header search chrome (category + box + button)",
+        "specFile": "tests/OneDirectBuy/Homepage.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-026-f",
+        "title": "Header account / wishlist / cart shortcuts",
+        "specFile": "tests/OneDirectBuy/Homepage.spec.js",
+        "order": 6
+      },
+      {
+        "stepId": "ODB-UC-026-g",
+        "title": "Shop by Department control visible",
+        "specFile": "tests/OneDirectBuy/Homepage.spec.js",
+        "order": 7
+      },
+      {
+        "stepId": "ODB-UC-026-h",
+        "title": "Best Seller Brands section after scroll",
+        "specFile": "tests/OneDirectBuy/Homepage.spec.js",
+        "order": 8
+      },
+      {
+        "stepId": "ODB-UC-506",
+        "title": "Homepage loads within 15s at full width",
+        "specFile": "tests/OneDirectBuy/Homepage.spec.js",
+        "order": 9
+      },
+      {
+        "stepId": "ODB-UC-027-a",
+        "title": "All products → /shop (Shop All Products)",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 10
+      },
+      {
+        "stepId": "ODB-UC-027-b",
+        "title": "Sell on OneDirectBuy → /vendor/become-a-vendor",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 11
+      },
+      {
+        "stepId": "ODB-UC-027-c",
+        "title": "Track your order → /account/order-tracking",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 12
+      },
+      {
+        "stepId": "ODB-UC-028-a",
+        "title": "Privacy Policy → /info/privacy-policy",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 13
+      },
+      {
+        "stepId": "ODB-UC-028-b",
+        "title": "Terms of Service → /info/terms-of-service",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 14
+      },
+      {
+        "stepId": "ODB-UC-028-c",
+        "title": "Contact Us → /info/contact-us (stable support path)",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 15
+      },
+      {
+        "stepId": "ODB-UC-028-d",
+        "title": "Help Center opens in-page assistant (Conversations)",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 16
+      },
+      {
+        "stepId": "ODB-UC-029-a",
+        "title": "Shop by Department expands category links",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 17
+      },
+      {
+        "stepId": "ODB-UC-029-b",
+        "title": "Shopper opens Exterior → /category/exterior",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 18
+      },
+      {
+        "stepId": "ODB-UC-038",
+        "title": "From /shop, ps-logo returns home",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 19
+      },
+      {
+        "stepId": "ODB-UC-039-a",
+        "title": "Mobile bottom bar: Menu / Categories / Vehicle / Search / Cart",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 20
+      },
+      {
+        "stepId": "ODB-UC-039-b",
+        "title": "Menu drawer → Shop → /shop",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 21
+      },
+      {
+        "stepId": "ODB-UC-040",
+        "title": "Home breadcrumb from /shop",
+        "specFile": "tests/OneDirectBuy/Navigation.spec.js",
+        "order": 22
+      }
+    ]
+  },
+  "2": {
+    "flowId": 2,
+    "name": "Search & Shop Listing",
+    "enabled": true,
+    "tests": [
+      "tests/OneDirectBuy/Search.spec.js",
+      "tests/OneDirectBuy/CategoryProductListing.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-030",
+        "title": "Type keyword in header Search products → results heading",
+        "specFile": "tests/OneDirectBuy/Search.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-031",
+        "title": "Empty keyword shows ",
+        "specFile": "tests/OneDirectBuy/Search.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-032",
+        "title": "Misspelled keyword still loads search results page",
+        "specFile": "tests/OneDirectBuy/Search.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-034",
+        "title": "Click Exterior in Categories sidebar",
+        "specFile": "tests/OneDirectBuy/Search.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-035",
+        "title": "Sort items: low to high then high to low",
+        "specFile": "tests/OneDirectBuy/Search.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-036",
+        "title": "Sort items → Sort by latest",
+        "specFile": "tests/OneDirectBuy/Search.spec.js",
+        "order": 6
+      },
+      {
+        "stepId": "ODB-UC-037",
+        "title": "Open first product from bearing search",
+        "specFile": "tests/OneDirectBuy/Search.spec.js",
+        "order": 7
+      },
+      {
+        "stepId": "ODB-UC-507",
+        "title": "Header search responds within 20s",
+        "specFile": "tests/OneDirectBuy/Search.spec.js",
+        "order": 8
+      },
+      {
+        "stepId": "ODB-UC-041",
+        "title": "Shop All Products + Categories + count",
+        "specFile": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+        "order": 9
+      },
+      {
+        "stepId": "ODB-UC-042",
+        "title": "Products found + product card links",
+        "specFile": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+        "order": 10
+      },
+      {
+        "stepId": "ODB-UC-043",
+        "title": "Card has product link, price, image",
+        "specFile": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+        "order": 11
+      },
+      {
+        "stepId": "ODB-UC-044",
+        "title": "By Price section with $0 to $20,000 range",
+        "specFile": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+        "order": 12
+      },
+      {
+        "stepId": "ODB-UC-045",
+        "title": "By Brands checkbox (AIR LIFT / ACCEL / AFE)",
+        "specFile": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+        "order": 13
+      },
+      {
+        "stepId": "ODB-UC-046",
+        "title": "Availability → In stock only",
+        "specFile": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+        "order": 14
+      },
+      {
+        "stepId": "ODB-UC-048",
+        "title": "By Rating radios including 4 stars & up",
+        "specFile": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+        "order": 15
+      },
+      {
+        "stepId": "ODB-UC-049",
+        "title": "Re-open /shop restores full listing count",
+        "specFile": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+        "order": 16
+      },
+      {
+        "stepId": "ODB-UC-050",
+        "title": "Pagination Previous / Next controls present",
+        "specFile": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+        "order": 17
+      },
+      {
+        "stepId": "ODB-UC-051",
+        "title": "Open product from shop listing",
+        "specFile": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+        "order": 18
+      },
+      {
+        "stepId": "ODB-UC-052",
+        "title": "Add To Cart from product card",
+        "specFile": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+        "order": 19
+      },
+      {
+        "stepId": "ODB-UC-053",
+        "title": "Sort by popularity from Sort items",
+        "specFile": "tests/OneDirectBuy/CategoryProductListing.spec.js",
+        "order": 20
+      }
+    ]
+  },
+  "3": {
+    "flowId": 3,
+    "name": "Vehicle Fitment",
+    "enabled": true,
+    "tests": [
+      "tests/OneDirectBuy/AutoPartsFitment.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-091-a",
+        "title": "Hero promotes Find Parts That Fit Your Vehicle",
+        "specFile": "tests/OneDirectBuy/AutoPartsFitment.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-091-b",
+        "title": "Select Vehicle expands My Vehicles garage panel",
+        "specFile": "tests/OneDirectBuy/AutoPartsFitment.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-092",
+        "title": "Add Vehicle → Add New Vehicle with Year/Make/Model",
+        "specFile": "tests/OneDirectBuy/AutoPartsFitment.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-093",
+        "title": "Select year, make, model then Find Parts is enabled",
+        "specFile": "tests/OneDirectBuy/AutoPartsFitment.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-094",
+        "title": "VIN tab: 17-char input + Look up VIN",
+        "specFile": "tests/OneDirectBuy/AutoPartsFitment.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-109",
+        "title": "Search keyword 60431 (SKU) shows results",
+        "specFile": "tests/OneDirectBuy/AutoPartsFitment.spec.js",
+        "order": 6
+      },
+      {
+        "stepId": "ODB-UC-110",
+        "title": "390px bottom Vehicle → My Vehicles / Add",
+        "specFile": "tests/OneDirectBuy/AutoPartsFitment.spec.js",
+        "order": 7
+      }
+    ]
+  },
+  "4": {
+    "flowId": 4,
+    "name": "Product Detail",
+    "enabled": true,
+    "tests": [
+      "tests/OneDirectBuy/ProductDetail.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-056",
+        "title": "H1 title + price visible on /product/",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-057",
+        "title": "View larger control or main product image",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-058",
+        "title": "SKU# / Brand / In stock / Ships from / Sold by",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-060",
+        "title": "Quantity up (.up) control is usable",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-062",
+        "title": "Add to cart shows Cart Updated notice",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-063",
+        "title": "Buy Now link is visible",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 6
+      },
+      {
+        "stepId": "ODB-UC-065",
+        "title": "Wishlist button visible for guest",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 7
+      },
+      {
+        "stepId": "ODB-UC-068",
+        "title": "Return & Refund Policy link",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 8
+      },
+      {
+        "stepId": "ODB-UC-071",
+        "title": "Related products heading + product links",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 9
+      },
+      {
+        "stepId": "ODB-UC-072-a",
+        "title": "Description tab + About this item",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 10
+      },
+      {
+        "stepId": "ODB-UC-072-b",
+        "title": "Specification tab selectable",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 11
+      },
+      {
+        "stepId": "ODB-UC-074",
+        "title": "Ohh! Page not found for bad product slug",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 12
+      },
+      {
+        "stepId": "ODB-UC-075",
+        "title": "404 for deleted product slug",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 13
+      },
+      {
+        "stepId": "ODB-UC-406",
+        "title": "Related products has multiple product links",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 14
+      },
+      {
+        "stepId": "ODB-UC-508",
+        "title": "PDP image area loads within 20s",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 15
+      },
+      {
+        "stepId": "ODB-UC-064",
+        "title": "Wishlist reachable when buyer credentials set",
+        "specFile": "tests/OneDirectBuy/ProductDetail.spec.js",
+        "order": 16
+      }
+    ]
+  },
+  "5": {
+    "flowId": 5,
+    "name": "Cart",
+    "enabled": true,
+    "tests": [
+      "tests/OneDirectBuy/Cart.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-113",
+        "title": "Add from shop then cart shows line items",
+        "specFile": "tests/OneDirectBuy/Cart.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-114",
+        "title": "Cart heading + item line after add",
+        "specFile": "tests/OneDirectBuy/Cart.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-115",
+        "title": "Increase quantity control updates qty",
+        "specFile": "tests/OneDirectBuy/Cart.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-116",
+        "title": "Remove item → empty cart copy",
+        "specFile": "tests/OneDirectBuy/Cart.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-117",
+        "title": "Reload keeps cart lines",
+        "specFile": "tests/OneDirectBuy/Cart.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-118",
+        "title": "Guest cart still present after register",
+        "specFile": "tests/OneDirectBuy/Cart.spec.js",
+        "order": 6
+      },
+      {
+        "stepId": "ODB-UC-121",
+        "title": "Order summary Subtotal + Proceed to checkout",
+        "specFile": "tests/OneDirectBuy/Cart.spec.js",
+        "order": 7
+      },
+      {
+        "stepId": "ODB-UC-112",
+        "title": "Your cart is empty + Continue shopping",
+        "specFile": "tests/OneDirectBuy/Cart.spec.js",
+        "order": 8
+      },
+      {
+        "stepId": "ODB-UC-124",
+        "title": "Apply env coupon code",
+        "specFile": "tests/OneDirectBuy/Cart.spec.js",
+        "order": 9
+      },
+      {
+        "stepId": "ODB-UC-125",
+        "title": "Invalid or expired coupon code notice",
+        "specFile": "tests/OneDirectBuy/Cart.spec.js",
+        "order": 10
+      }
+    ]
+  },
+  "6": {
+    "flowId": 6,
+    "name": "Auth (Login & Buyer Account) — guest/public only until buyer secrets",
+    "enabled": true,
+    "tests": [
+      "tests/OneDirectBuy/Login.spec.js",
+      "tests/OneDirectBuy/BuyerAccount.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-015",
+        "title": "Welcome back + Sign in controls",
+        "specFile": "tests/OneDirectBuy/Login.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-007",
+        "title": "Forgot password? link present",
+        "specFile": "tests/OneDirectBuy/Login.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-005-a",
+        "title": "Email/password fields accept typed values",
+        "specFile": "tests/OneDirectBuy/Login.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-006",
+        "title": "Sign-in failed notice for bad credentials",
+        "specFile": "tests/OneDirectBuy/Login.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-005-b",
+        "title": "Buyer can log in and reach my-account",
+        "specFile": "tests/OneDirectBuy/Login.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-385",
+        "title": "Conditions of Use + Privacy Notice on register",
+        "specFile": "tests/OneDirectBuy/BuyerAccount.spec.js",
+        "order": 6
+      },
+      {
+        "stepId": "ODB-UC-003",
+        "title": "Full name / email / passwords / Create CTA",
+        "specFile": "tests/OneDirectBuy/BuyerAccount.spec.js",
+        "order": 7
+      },
+      {
+        "stepId": "ODB-UC-001",
+        "title": "Create account with unique email reaches account",
+        "specFile": "tests/OneDirectBuy/BuyerAccount.spec.js",
+        "order": 8
+      },
+      {
+        "stepId": "ODB-UC-002",
+        "title": "Existing email shows already/exists notice",
+        "specFile": "tests/OneDirectBuy/BuyerAccount.spec.js",
+        "order": 9
+      },
+      {
+        "stepId": "ODB-UC-475",
+        "title": "/account/orders as guest → login, no order table",
+        "specFile": "tests/OneDirectBuy/BuyerAccount.spec.js",
+        "order": 10
+      }
+    ]
+  },
+  "7": {
+    "flowId": 7,
+    "name": "Checkout",
+    "enabled": true,
+    "tests": [
+      "tests/OneDirectBuy/Checkout.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-129",
+        "title": "Checkout Information + Contact & Shipping",
+        "specFile": "tests/OneDirectBuy/Checkout.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-133",
+        "title": "Save address keeps required Name * focused",
+        "specFile": "tests/OneDirectBuy/Checkout.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-138",
+        "title": "Your order + Total $ with line item",
+        "specFile": "tests/OneDirectBuy/Checkout.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-132",
+        "title": "Required shipping fields + Save address CTA",
+        "specFile": "tests/OneDirectBuy/Checkout.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-128",
+        "title": "No Product. + Total $ 0.00 when cart empty",
+        "specFile": "tests/OneDirectBuy/Checkout.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-143",
+        "title": "Payment success confirmation page",
+        "specFile": "tests/OneDirectBuy/Checkout.spec.js",
+        "order": 6
+      }
+    ]
+  },
+  "8": {
+    "flowId": 8,
+    "name": "Legal & SEO",
+    "enabled": true,
+    "tests": [
+      "tests/OneDirectBuy/LegalPages.spec.js",
+      "tests/OneDirectBuy/ErrorHandlingSeo.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-382",
+        "title": "/info/policies hub cards",
+        "specFile": "tests/OneDirectBuy/LegalPages.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-383",
+        "title": "/info/sitemap heading + XML link",
+        "specFile": "tests/OneDirectBuy/LegalPages.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-384",
+        "title": "Privacy policy page shows © year",
+        "specFile": "tests/OneDirectBuy/LegalPages.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-469",
+        "title": "Ohh! Page not found for missing route",
+        "specFile": "tests/OneDirectBuy/ErrorHandlingSeo.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-510",
+        "title": "404 page Homepage link",
+        "specFile": "tests/OneDirectBuy/ErrorHandlingSeo.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-458",
+        "title": "PDP canonical href points at onedirectbuy.com",
+        "specFile": "tests/OneDirectBuy/ErrorHandlingSeo.spec.js",
+        "order": 6
+      },
+      {
+        "stepId": "ODB-UC-460",
+        "title": "GET /sitemap.xml (or index) < 500",
+        "specFile": "tests/OneDirectBuy/ErrorHandlingSeo.spec.js",
+        "order": 7
+      },
+      {
+        "stepId": "ODB-UC-461",
+        "title": "/info/contact-us heading",
+        "specFile": "tests/OneDirectBuy/ErrorHandlingSeo.spec.js",
+        "order": 8
+      }
+    ]
+  },
+  "9": {
+    "flowId": 9,
+    "name": "Seller Storefront & Onboarding",
+    "enabled": true,
+    "tests": [
+      "tests/OneDirectBuy/SellerStorefront.spec.js",
+      "tests/OneDirectBuy/SellerOnboarding.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-200",
+        "title": "Store list + Search vendor + Visit Store",
+        "specFile": "tests/OneDirectBuy/SellerStorefront.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-364",
+        "title": "Search vendor filters store directory",
+        "specFile": "tests/OneDirectBuy/SellerStorefront.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-201",
+        "title": "Store detail shows Contact Seller + products",
+        "specFile": "tests/OneDirectBuy/SellerStorefront.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-066",
+        "title": "PDP Sold by label",
+        "specFile": "tests/OneDirectBuy/SellerStorefront.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-047",
+        "title": "Shop has Categories + product links",
+        "specFile": "tests/OneDirectBuy/SellerStorefront.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-183",
+        "title": "Sell landing + Start Selling Today CTA",
+        "specFile": "tests/OneDirectBuy/SellerOnboarding.spec.js",
+        "order": 6
+      },
+      {
+        "stepId": "ODB-UC-184",
+        "title": "CTA → /vendor/seller-application",
+        "specFile": "tests/OneDirectBuy/SellerOnboarding.spec.js",
+        "order": 7
+      },
+      {
+        "stepId": "ODB-UC-185",
+        "title": "FAQ + Seller Requirements on landing",
+        "specFile": "tests/OneDirectBuy/SellerOnboarding.spec.js",
+        "order": 8
+      },
+      {
+        "stepId": "ODB-UC-191",
+        "title": "Application contact + business fields",
+        "specFile": "tests/OneDirectBuy/SellerOnboarding.spec.js",
+        "order": 9
+      },
+      {
+        "stepId": "ODB-UC-380",
+        "title": "/info/fee-schedule OneDirect Fee Schedule",
+        "specFile": "tests/OneDirectBuy/SellerOnboarding.spec.js",
+        "order": 10
+      },
+      {
+        "stepId": "ODB-UC-381",
+        "title": "Prohibited products policy heading",
+        "specFile": "tests/OneDirectBuy/SellerOnboarding.spec.js",
+        "order": 11
+      },
+      {
+        "stepId": "ODB-UC-379",
+        "title": "/info/terms-of-service loads",
+        "specFile": "tests/OneDirectBuy/SellerOnboarding.spec.js",
+        "order": 12
+      },
+      {
+        "stepId": "ODB-UC-197",
+        "title": "Terms of Service stands in for seller agreement",
+        "specFile": "tests/OneDirectBuy/SellerOnboarding.spec.js",
+        "order": 13
+      },
+      {
+        "stepId": "ODB-UC-194",
+        "title": "Logged-in buyer sees Sell page + Store list",
+        "specFile": "tests/OneDirectBuy/SellerOnboarding.spec.js",
+        "order": 14
+      }
+    ]
+  },
+  "10": {
+    "flowId": 10,
+    "name": "Seller/Admin Backends",
+    "enabled": true,
+    "tests": [
+      "tests/OneDirectBuy/SellerMessaging.spec.js",
+      "tests/OneDirectBuy/SellerOrders.spec.js",
+      "tests/OneDirectBuy/SellerPromotions.spec.js",
+      "tests/OneDirectBuy/SellerAdminManagement.spec.js",
+      "tests/OneDirectBuy/SellerCatalogBackend.spec.js",
+      "tests/OneDirectBuy/SellerCsvCoverage.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-323",
+        "title": "Contact Seller link on store",
+        "specFile": "tests/OneDirectBuy/SellerMessaging.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-323b",
+        "title": "Contact Seller → Conversations panel",
+        "specFile": "tests/OneDirectBuy/SellerMessaging.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-066-msg",
+        "title": "PDP Sold by for seller contact context",
+        "specFile": "tests/OneDirectBuy/SellerMessaging.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-324",
+        "title": "my-account dashboard for post-order contact",
+        "specFile": "tests/OneDirectBuy/SellerMessaging.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-174",
+        "title": "/account/orders loads when authenticated",
+        "specFile": "tests/OneDirectBuy/SellerMessaging.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-169",
+        "title": "Order Tracking H1 + Order ID + Track Your Order",
+        "specFile": "tests/OneDirectBuy/SellerOrders.spec.js",
+        "order": 6
+      },
+      {
+        "stepId": "ODB-UC-177",
+        "title": "Shop listing has product cards",
+        "specFile": "tests/OneDirectBuy/SellerOrders.spec.js",
+        "order": 7
+      },
+      {
+        "stepId": "ODB-UC-167",
+        "title": "my-account + /account/orders",
+        "specFile": "tests/OneDirectBuy/SellerOrders.spec.js",
+        "order": 8
+      },
+      {
+        "stepId": "ODB-UC-168",
+        "title": "Orders page shell after login",
+        "specFile": "tests/OneDirectBuy/SellerOrders.spec.js",
+        "order": 9
+      },
+      {
+        "stepId": "ODB-UC-180",
+        "title": "Authenticated my-account for multi-seller review",
+        "specFile": "tests/OneDirectBuy/SellerOrders.spec.js",
+        "order": 10
+      },
+      {
+        "stepId": "ODB-UC-396",
+        "title": "Cart Coupon field + Apply button",
+        "specFile": "tests/OneDirectBuy/SellerPromotions.spec.js",
+        "order": 11
+      },
+      {
+        "stepId": "ODB-UC-396b",
+        "title": "Invalid or expired coupon code",
+        "specFile": "tests/OneDirectBuy/SellerPromotions.spec.js",
+        "order": 12
+      },
+      {
+        "stepId": "ODB-UC-364",
+        "title": "Search vendor on /stores",
+        "specFile": "tests/OneDirectBuy/SellerAdminManagement.spec.js",
+        "order": 13
+      },
+      {
+        "stepId": "ODB-UC-365",
+        "title": "Search result heading for keyword",
+        "specFile": "tests/OneDirectBuy/SellerAdminManagement.spec.js",
+        "order": 14
+      },
+      {
+        "stepId": "ODB-UC-476",
+        "title": "Sell landing + my-account (no seller admin)",
+        "specFile": "tests/OneDirectBuy/SellerAdminManagement.spec.js",
+        "order": 15
+      },
+      {
+        "stepId": "ODB-UC-364-guest",
+        "title": "Public Store list + Search vendor",
+        "specFile": "tests/OneDirectBuy/SellerAdminManagement.spec.js",
+        "order": 16
+      },
+      {
+        "stepId": "seller-csv-load",
+        "title": "≥60 ODB-UC-* rows from seller.csv",
+        "specFile": "tests/OneDirectBuy/SellerCsvCoverage.spec.js",
+        "order": 17
+      },
+      {
+        "stepId": "seller-csv-coverage",
+        "title": "All seller.csv IDs appear in Seller*.spec.js",
+        "specFile": "tests/OneDirectBuy/SellerCsvCoverage.spec.js",
+        "order": 18
+      }
+    ]
+  },
+  "11": {
+    "flowId": 11,
+    "name": "Responsive UI & Accessibility",
+    "enabled": true,
+    "tests": [
+      "tests/OneDirectBuy/ResponsiveAccessibility.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-491",
+        "title": "Welcome + mobile bottom bar",
+        "specFile": "tests/OneDirectBuy/ResponsiveAccessibility.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-491b",
+        "title": "Menu → Home / Shop / Vendor / Blogs",
+        "specFile": "tests/OneDirectBuy/ResponsiveAccessibility.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-492",
+        "title": "PDP H1 visible on mobile viewport",
+        "specFile": "tests/OneDirectBuy/ResponsiveAccessibility.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-495",
+        "title": "Shop Products found + product links",
+        "specFile": "tests/OneDirectBuy/ResponsiveAccessibility.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-499",
+        "title": "Tab focuses a visible control on homepage",
+        "specFile": "tests/OneDirectBuy/ResponsiveAccessibility.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-501",
+        "title": "First shop product image has alt attribute",
+        "specFile": "tests/OneDirectBuy/ResponsiveAccessibility.spec.js",
+        "order": 6
+      },
+      {
+        "stepId": "ODB-UC-502",
+        "title": "Email address + Password + Sign in labeled",
+        "specFile": "tests/OneDirectBuy/ResponsiveAccessibility.spec.js",
+        "order": 7
+      },
+      {
+        "stepId": "ODB-UC-503",
+        "title": "Empty Sign in shows Please input messages",
+        "specFile": "tests/OneDirectBuy/ResponsiveAccessibility.spec.js",
+        "order": 8
+      }
+    ]
+  },
+  "12": {
+    "flowId": 12,
+    "name": "Buyer Address Book (needs buyer secrets — off for now)",
+    "enabled": false,
+    "tests": [
+      "tests/OneDirectBuy/BuyerAddress.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-010-guest",
+        "title": "/account/addresses → Welcome back",
+        "specFile": "tests/OneDirectBuy/BuyerAddress.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-010-guest-add",
+        "title": "/account/addresses/add → login",
+        "specFile": "tests/OneDirectBuy/BuyerAddress.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-132-addr",
+        "title": "Name / Address line 1 / Country / default checkbox",
+        "specFile": "tests/OneDirectBuy/BuyerAddress.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-010",
+        "title": "Add address via /account/addresses/add",
+        "specFile": "tests/OneDirectBuy/BuyerAddress.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-011",
+        "title": "Edit address → update city → Save",
+        "specFile": "tests/OneDirectBuy/BuyerAddress.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-013",
+        "title": "Set default / Default badge",
+        "specFile": "tests/OneDirectBuy/BuyerAddress.spec.js",
+        "order": 6
+      },
+      {
+        "stepId": "ODB-UC-012",
+        "title": "Delete address removes line1 from list",
+        "specFile": "tests/OneDirectBuy/BuyerAddress.spec.js",
+        "order": 7
+      }
+    ]
+  },
+  "6.1": {
+    "flowId": 6.1,
+    "name": "Buyer authenticated account (needs ONEDIRECTBUY_BUYER_* — off for now)",
+    "enabled": false,
+    "tests": [
+      "tests/OneDirectBuy/BuyerAccountAuthenticated.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-005-auth",
+        "title": "my-account shows dashboard + Logout",
+        "specFile": "tests/OneDirectBuy/BuyerAccountAuthenticated.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-009",
+        "title": "Account information page loads",
+        "specFile": "tests/OneDirectBuy/BuyerAccountAuthenticated.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-010",
+        "title": "Your Addresses heading",
+        "specFile": "tests/OneDirectBuy/BuyerAccountAuthenticated.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-014",
+        "title": "Logout returns to Welcome back login",
+        "specFile": "tests/OneDirectBuy/BuyerAccountAuthenticated.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-021",
+        "title": "user-information shows password/profile copy",
+        "specFile": "tests/OneDirectBuy/BuyerAccountAuthenticated.spec.js",
+        "order": 5
+      }
+    ]
+  },
+  "6.2": {
+    "flowId": 6.2,
+    "name": "Buyer purchase journey (needs buyer + Stripe — off for now)",
+    "enabled": false,
+    "tests": [
+      "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "J01-0",
+        "title": "Site is reachable",
+        "specFile": "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "J01-0-blocked",
+        "title": "Journey aborted — site unreachable (infra, not product)",
+        "specFile": "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "J01-1",
+        "title": "Buyer logs in and reaches account",
+        "specFile": "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js",
+        "order": 3,
+        "dependsOn": "J01-0"
+      },
+      {
+        "stepId": "J01-2",
+        "title": "Add product to cart; cart shows line item + checkout CTA",
+        "specFile": "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js",
+        "order": 4,
+        "dependsOn": "J01-1"
+      },
+      {
+        "stepId": "J01-2b",
+        "title": "Product shown In stock but Add to cart reports out of stock",
+        "specFile": "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "J01-3",
+        "title": "Proceed to checkout with product and non-zero total",
+        "specFile": "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js",
+        "order": 6,
+        "dependsOn": "J01-2"
+      },
+      {
+        "stepId": "J01-4",
+        "title": "Fill or select shipping address on checkout",
+        "specFile": "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js",
+        "order": 7,
+        "dependsOn": "J01-3"
+      },
+      {
+        "stepId": "J01-5",
+        "title": "Place order with Stripe sandbox card reaches confirmation",
+        "specFile": "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js",
+        "order": 8,
+        "dependsOn": "J01-4"
+      },
+      {
+        "stepId": "J01-6",
+        "title": "Order appears in account Orders",
+        "specFile": "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js",
+        "order": 9,
+        "dependsOn": "J01-5"
+      },
+      {
+        "stepId": "J01-6-skipped",
+        "title": "Skipped order-history check — place order did not complete",
+        "specFile": "tests/OneDirectBuy/BuyerPurchaseJourney.spec.js",
+        "order": 10
+      }
+    ]
+  },
+  "10.1": {
+    "flowId": 10.1,
+    "name": "Admin backend login (needs admin/buyer secrets — off for now)",
+    "enabled": false,
+    "tests": [
+      "tests/OneDirectBuy/AdminBackend.spec.js"
+    ],
+    "steps": [
+      {
+        "stepId": "ODB-UC-357",
+        "title": "my-account dashboard + Logout",
+        "specFile": "tests/OneDirectBuy/AdminBackend.spec.js",
+        "order": 1
+      },
+      {
+        "stepId": "ODB-UC-358",
+        "title": "Dashboard + Orders nav links",
+        "specFile": "tests/OneDirectBuy/AdminBackend.spec.js",
+        "order": 2
+      },
+      {
+        "stepId": "ODB-UC-364-admin",
+        "title": "Store list visible after login",
+        "specFile": "tests/OneDirectBuy/AdminBackend.spec.js",
+        "order": 3
+      },
+      {
+        "stepId": "ODB-UC-365-admin",
+        "title": "Search result for bearing",
+        "specFile": "tests/OneDirectBuy/AdminBackend.spec.js",
+        "order": 4
+      },
+      {
+        "stepId": "ODB-UC-371",
+        "title": "/account/orders after login",
+        "specFile": "tests/OneDirectBuy/AdminBackend.spec.js",
+        "order": 5
+      },
+      {
+        "stepId": "ODB-UC-372",
+        "title": "Order Tracking form",
+        "specFile": "tests/OneDirectBuy/AdminBackend.spec.js",
+        "order": 6
+      },
+      {
+        "stepId": "ODB-UC-374",
+        "title": "Orders list or empty state",
+        "specFile": "tests/OneDirectBuy/AdminBackend.spec.js",
+        "order": 7
+      },
+      {
+        "stepId": "ODB-UC-476-admin",
+        "title": "Sell on OneDirect Buy landing",
+        "specFile": "tests/OneDirectBuy/AdminBackend.spec.js",
+        "order": 8
+      }
+    ]
+  }
+}

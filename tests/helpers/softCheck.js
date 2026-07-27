@@ -4,6 +4,7 @@
  */
 import fs from "fs";
 import path from "path";
+import { reportStepStatus, reportIssue } from "./statusApi.js";
 
 export const BUFFER_DIR = path.join("test-results", "soft-issues", "_buffer");
 const SCREENSHOT_DIR = path.join("test-results", "soft-issues", "screenshots");
@@ -107,8 +108,20 @@ export function createSoftChecker(page, testInfo) {
   async function soft(id, title, fn, opts = {}) {
     const severity = opts.severity || "major";
     const forceMarker = opts.marker || "";
+    await reportStepStatus({
+      stepId: id,
+      title,
+      status: "running",
+      severity,
+    });
     try {
       await fn();
+      await reportStepStatus({
+        stepId: id,
+        title,
+        status: "passed",
+        severity,
+      });
       return true;
     } catch (err) {
       const marker = forceMarker || classifyError(err);
@@ -118,6 +131,21 @@ export function createSoftChecker(page, testInfo) {
         .slice(0, 6)
         .join("\n")
         .slice(0, 800);
+
+      const stepStatus =
+        marker === MARKERS.BLOCKED || category === "infra"
+          ? marker === MARKERS.BLOCKED
+            ? "blocked"
+            : "failed"
+          : "failed";
+      await reportStepStatus({
+        stepId: id,
+        title,
+        status: stepStatus,
+        error: evidence,
+        marker,
+        severity: category === "infra" ? "minor" : severity,
+      });
 
       let screenshotPath = "";
       // Skip full-page shots on chrome-error / dead pages — not useful for product.
@@ -164,6 +192,8 @@ export function createSoftChecker(page, testInfo) {
         capturedAt: new Date().toISOString(),
       };
       issues.push(issue);
+
+      await reportIssue(issue).catch(() => {});
 
       const line = `${marker} ${id} — ${title}`;
       console.log(`\n⚠ ${line}`);

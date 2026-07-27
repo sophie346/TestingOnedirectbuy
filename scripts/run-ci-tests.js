@@ -329,7 +329,58 @@ function main() {
     PW_JUNIT_REPORT_PATH: path.join("reports", runId, "junit.xml"),
   };
 
-  const args = ["playwright", "test", "--project=chromium", ...testFiles];
+  // Preserve control-plane telemetry env for Playwright workers
+  if (process.env.RUNNING_OCCURRENCE_ID) {
+    env.RUNNING_OCCURRENCE_ID = process.env.RUNNING_OCCURRENCE_ID;
+  }
+  if (process.env.STATUS_API_URL) {
+    env.STATUS_API_URL = process.env.STATUS_API_URL;
+  }
+  if (process.env.MONGODB_URI) {
+    env.MONGODB_URI = process.env.MONGODB_URI;
+  }
+  if (process.env.STATUS_API_TOKEN || process.env.API_TOKEN) {
+    env.STATUS_API_TOKEN =
+      process.env.STATUS_API_TOKEN || process.env.API_TOKEN;
+  }
+
+  console.log(
+    `[run-ci] occurrence=${env.RUNNING_OCCURRENCE_ID || "(none)"} api=${env.STATUS_API_URL || "(none)"}`,
+  );
+
+  // Re-assert meta file so soft() can resolve occurrence even if env is dropped by the shell
+  if (env.RUNNING_OCCURRENCE_ID) {
+    const metaFile = path.join(ROOT, "reports", "odb-flow-run.json");
+    const activeFile = path.join(ROOT, "reports", "odb-active-occurrence.txt");
+    let prev = {};
+    try {
+      if (fs.existsSync(metaFile)) {
+        prev = JSON.parse(fs.readFileSync(metaFile, "utf8"));
+      }
+    } catch {
+      prev = {};
+    }
+    fs.mkdirSync(path.dirname(metaFile), { recursive: true });
+    fs.writeFileSync(
+      metaFile,
+      `${JSON.stringify(
+        {
+          ...prev,
+          occurrenceId: env.RUNNING_OCCURRENCE_ID,
+          statusApiUrl: env.STATUS_API_URL || prev.statusApiUrl || "",
+          mongoUri: env.MONGODB_URI || prev.mongoUri || "",
+          refreshedAt: new Date().toISOString(),
+        },
+        null,
+        2,
+      )}\n`,
+      "utf8",
+    );
+    fs.writeFileSync(activeFile, `${env.RUNNING_OCCURRENCE_ID}\n`, "utf8");
+    console.log(`[run-ci] refreshed control-plane meta at ${metaFile}`);
+  }
+
+  const args = ["test", "--project=chromium", ...testFiles];
   if (
     process.env.PW_HEADED === "1" ||
     process.env.PW_HEADED === "true" ||
@@ -339,11 +390,25 @@ function main() {
     args.push("--headed");
   }
 
-  const result = spawnSync("npx", args, {
+  // Invoke Playwright CLI via node (no npx / no shell) so env vars survive on Windows
+  const pwCli = path.join(
+    ROOT,
+    "node_modules",
+    "@playwright",
+    "test",
+    "cli.js",
+  );
+  if (!fs.existsSync(pwCli)) {
+    console.error(`Playwright CLI not found: ${pwCli}`);
+    process.exit(1);
+  }
+
+  console.log(`[run-ci] node ${path.relative(ROOT, pwCli)} ${args.join(" ")}`);
+  const result = spawnSync(process.execPath, [pwCli, ...args], {
     cwd: ROOT,
     env,
     stdio: "inherit",
-    shell: true,
+    windowsHide: false,
   });
 
   const playwrightExit = result.status ?? 1;
@@ -355,6 +420,10 @@ function main() {
     configPath: CONFIG_PATH,
   });
 
+  // Control-plane runs always surface the real Playwright exit code
+  if (process.env.RUNNING_OCCURRENCE_ID) {
+    process.exit(playwrightExit);
+  }
   process.exit(softPass ? 0 : playwrightExit);
 }
 

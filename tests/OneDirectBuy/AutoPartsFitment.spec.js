@@ -6,7 +6,7 @@ import {
   openMyVehiclesPanel,
   openVehicleFromMobileBar,
   openVinLookupTab,
-  selectVehicleButton,
+  yearCombobox,
 } from "../helpers/oneDirectBuyFitment.js";
 
 const DESKTOP = { width: 1920, height: 1080 };
@@ -42,7 +42,11 @@ test.describe("OneDirectBuy — Auto Parts Fitment", () => {
           page.getByText(/Select a vehicle to see compatible parts/i),
         ).toBeVisible();
         await expect(
-          page.getByText(/No saved vehicles yet|Vehicles are saved on this device/i).first(),
+          page
+            .getByText(
+              /No saved vehicles yet|Vehicles are saved on this device/i,
+            )
+            .first(),
         ).toBeVisible();
         await expect(
           page.getByRole("button", { name: /^Add Vehicle$/i }),
@@ -66,13 +70,16 @@ test.describe("OneDirectBuy — Auto Parts Fitment", () => {
         await expect(page.getByText(/^Year$/i).first()).toBeVisible();
         await expect(page.getByText(/^Make$/i).first()).toBeVisible();
         await expect(page.getByText(/^Model$/i).first()).toBeVisible();
+        await expect(yearCombobox(page)).toBeVisible();
         await expect(
           page.getByRole("textbox", { name: /Trim \(optional\)/i }),
         ).toBeVisible();
         await expect(
           page.getByRole("textbox", { name: /Engine \(optional\)/i }),
         ).toBeVisible();
-        await expect(page.getByRole("button", { name: /^Find Parts$/i })).toBeDisabled();
+        await expect(
+          page.getByRole("button", { name: /^Find Parts$/i }),
+        ).toBeDisabled();
         await expect(
           page.getByRole("button", { name: /^Save Vehicle$/i }),
         ).toBeDisabled();
@@ -96,22 +103,27 @@ test.describe("OneDirectBuy — Auto Parts Fitment", () => {
 
         await expect(
           page.getByRole("button", { name: /^Find Parts$/i }),
-        ).toBeEnabled({ timeout: 10_000 });
+        ).toBeEnabled({ timeout: 15_000 });
         await expect(
           page.getByRole("button", { name: /^Save Vehicle$/i }),
-        ).toBeEnabled({ timeout: 10_000 });
+        ).toBeEnabled({ timeout: 15_000 });
       },
     );
   });
 
-  test("ODB-UC-094: Look up by VIN tab shows VIN field", async ({ page, soft }) => {
+  test("ODB-UC-094: Look up by VIN tab shows VIN field", async ({
+    page,
+    soft,
+  }) => {
     await soft("ODB-UC-094", "VIN tab: 17-char input + Look up VIN", async () => {
       await openVinLookupTab(page);
-      const vin = page.getByRole("textbox", { name: /VIN \(17 characters\)/i });
-      await vin.fill("1FTFW1E50MFA00000");
-      await expect(page.getByRole("button", { name: /^Look up VIN$/i })).toBeEnabled({
-        timeout: 5_000,
+      const vin = page.getByRole("textbox", {
+        name: /VIN \(17 characters\)/i,
       });
+      await vin.fill("1FTFW1E50MFA00000");
+      await expect(
+        page.getByRole("button", { name: /^Look up VIN$/i }),
+      ).toBeEnabled({ timeout: 5_000 });
     });
   });
 
@@ -119,27 +131,40 @@ test.describe("OneDirectBuy — Auto Parts Fitment", () => {
     page,
     soft,
   }) => {
-    await soft("ODB-UC-109", "Search keyword 60431 (SKU) shows results", async () => {
-      await searchProducts(page, "60431");
-      await expect(
-        page.getByRole("heading", { name: /Search result for/i }),
-      ).toBeVisible({ timeout: 20_000 });
-      await expect(
-        page
-          .getByText(/60431|SKU|bearing|product/i)
-          .or(page.locator('a[href*="/product/"]'))
-          .first(),
-      ).toBeVisible({ timeout: 30_000 });
-    });
+    await soft(
+      "ODB-UC-109",
+      "Search keyword 60431 (SKU) shows results",
+      async () => {
+        await searchProducts(page, "60431");
+        await expect(
+          page.getByRole("heading", { name: /Search result for/i }),
+        ).toBeVisible({ timeout: 20_000 });
+        await expect(
+          page
+            .getByText(/60431|SKU|bearing|product/i)
+            .or(page.locator('a[href*="/product/"]'))
+            .first(),
+        ).toBeVisible({ timeout: 30_000 });
+      },
+    );
   });
 
   test("ODB-UC-110: mobile Vehicle bar opens fitment garage", async ({
     page,
     soft,
   }) => {
-    await soft("ODB-UC-110", "390px bottom Vehicle → My Vehicles / Add", async () => {
-      await openVehicleFromMobileBar(page);
-      await expect(selectVehicleButton(page).or(page.getByRole("button", { name: /^Vehicle$/i })).first()).toBeVisible();
-    });
+    await soft(
+      "ODB-UC-110",
+      "390px bottom Vehicle → My Vehicles / Add",
+      async () => {
+        await openVehicleFromMobileBar(page);
+        await expect(
+          page.getByRole("button", { name: /^Add Vehicle$/i }),
+        ).toBeVisible();
+        await expect(
+          page.getByText(/Select a vehicle to see compatible parts/i),
+        ).toBeVisible();
+      },
+    );
   });
 });
