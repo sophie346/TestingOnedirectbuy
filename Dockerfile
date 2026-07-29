@@ -16,7 +16,8 @@ ENV NODE_ENV=production \
 
 COPY package.json package-lock.json ./
 # Keep devDependencies — @playwright/test is required to run flows.
-RUN npm ci \
+# NODE_ENV=production would otherwise omit them during npm ci.
+RUN npm ci --include=dev \
   && npx playwright install chromium \
   && npm cache clean --force
 

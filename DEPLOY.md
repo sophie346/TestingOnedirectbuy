@@ -10,7 +10,18 @@ Both hosts hit the same GKE Deployment (`onetest`) — Express serves UI + `/api
 Image: `gcr.io/gentle-epoch-277301/onetest:latest`  
 Cluster service: `onetest` (NEG on port 80 → container 8080)
 
-## 1. Build image
+## CI/CD (Cloud Build)
+
+Same pattern as `commonblog-ui-prod` / `onechanneladmin-ui-web-*`:
+
+| Trigger | Branch | Config |
+|---------|--------|--------|
+| `onetest-prod` | `cicd-prod` | `cloudbuild.yaml` |
+| `onetest-dev` | `cicd-dev` | `cloudbuild.yaml` |
+
+Push to either branch → build `gcr.io/gentle-epoch-277301/onetest` → `kubectl rollout restart deployment/onetest`.
+
+## 1. Build image (manual)
 
 ```bash
 cd D:\TestingOnedirectbuy
