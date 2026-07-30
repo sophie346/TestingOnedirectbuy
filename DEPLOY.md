@@ -12,14 +12,13 @@ Cluster service: `onetest` (NEG on port 80 → container 8080)
 
 ## CI/CD (Cloud Build)
 
-Same pattern as `commonblog-ui-prod` / `onechanneladmin-ui-web-*`:
+Single GKE Deployment (`onetest`) — UI + API share one pod. Deploy via `cicd-prod` only.
 
 | Trigger | Branch | Config |
 |---------|--------|--------|
 | `onetest-prod` | `cicd-prod` | `cloudbuild.yaml` |
-| `onetest-dev` | `cicd-dev` | `cloudbuild.yaml` |
 
-Push to either branch → build `gcr.io/gentle-epoch-277301/onetest` → `kubectl rollout restart deployment/onetest`.
+Push to `cicd-prod` → build `gcr.io/gentle-epoch-277301/onetest` → `kubectl rollout restart deployment/onetest`.
 
 ## 1. Build image (manual)
 

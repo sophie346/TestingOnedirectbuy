@@ -1,5 +1,5 @@
 # CI/CD for OneDirectBuy flow control → GKE deployment `onetest`.
-# Triggers: push to cicd-dev / cicd-prod (Cloud Build → this config).
+# Trigger: push to cicd-prod (Cloud Build → this config).
 #
 # Local:
 #   gcloud builds submit --config=cloudbuild.yaml --project=gentle-epoch-277301 .
