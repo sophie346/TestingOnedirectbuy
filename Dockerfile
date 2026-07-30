@@ -11,6 +11,8 @@ ENV NODE_ENV=production \
     HOST=0.0.0.0 \
     HEADLESS=true \
     PW_HEADLESS=1 \
+    PW_USE_CHROME=0 \
+    TEST_ENV=production \
     PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1 \
     STATUS_API_URL=http://127.0.0.1:8080
 

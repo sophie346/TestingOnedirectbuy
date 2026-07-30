@@ -137,6 +137,16 @@ console.log(
   `[config] env=${testEnv} ci=${ci} fast=${ciFast} headless=${useHeadless} workers=${workers} retries=${retries} browser=chromium`,
 );
 
+/* Chromium only — never Firefox/WebKit.
+ * Local default: system Chrome (channel). Containers/CI/GKE: bundled Chromium
+ * (Playwright image has /ms-playwright, not /opt/google/chrome). */
+const useBundledChromium =
+  ci ||
+  process.env.PW_USE_CHROME === "0" ||
+  process.env.PW_USE_CHROME === "false" ||
+  process.env.TEST_ENV === "production" ||
+  process.env.TEST_ENV === "ci";
+
 /**
  * @see https://playwright.dev/docs/test-configuration
  */
@@ -204,25 +214,19 @@ export default defineConfig({
 
     ignoreHTTPSErrors: process.env.IGNORE_HTTPS_ERRORS === "1",
 
-    ...(ci
-      ? {
-          launchOptions: {
-            args: ["--disable-dev-shm-usage", "--no-sandbox"],
-          },
-        }
-      : {}),
+    // Safe in Kubernetes / Docker (small /dev/shm); harmless locally.
+    launchOptions: {
+      args: ["--disable-dev-shm-usage", "--no-sandbox"],
+    },
   },
 
-  /* Chromium only — never Firefox/WebKit. CI uses bundled Chromium (not system Chrome). */
   projects: [
     {
       name: "chromium",
       testDir: "./tests/OneDirectBuy",
       use: {
         ...devices["Desktop Chrome"],
-        ...(ci || process.env.PW_USE_CHROME === "0"
-          ? {}
-          : { channel: "chrome" }),
+        ...(useBundledChromium ? {} : { channel: "chrome" }),
       },
     },
   ],
